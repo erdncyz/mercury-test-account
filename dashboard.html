@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            color: #1e293b;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .admin-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .admin-btn:hover {
+            background-color: #2563eb;
+        }
+
+        .logout-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #dc2626;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 6rem auto 2rem;
+            padding: 0 2rem;
+        }
+
+        .welcome-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-subtext {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-title {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: #0f172a;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #3b82f6;
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-description {
+            color: #64748b;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .main-content {
+                padding: 0 1rem;
+                margin-top: 5rem;
+            }
+
+            .button-group {
+                gap: 0.5rem;
+            }
+
+            button {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">☿</span>
+                <span>Mercury</span>
+            </a>
+            <div class="button-group">
+                <button id="adminBtn" class="admin-btn" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    Admin Panel
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="welcome-card">
+            <h1 class="welcome-text">Welcome back, <span id="username"></span>!</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Account Status</div>
+                <div class="stat-value" id="accountStatus">Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Last Login</div>
+                <div class="stat-value" id="lastLogin">Just now</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Account Type</div>
+                <div class="stat-value" id="accountType">User</div>
+            </div>
+        </div>
+
+        <div class="projects-grid">
+            <a href="apac.html" class="project-card">
+                <div class="project-icon">🌏</div>
+                <h2 class="project-title">APAC</h2>
+            </a>
+            <a href="tod-tr.html" class="project-card">
+                <div class="project-icon">🇹🇷</div>
+                <h2 class="project-title">TOD TR</h2>
+            </a>
+            <a href="tod-mena.html" class="project-card">
+                <div class="project-icon">🌍</div>
+                <h2 class="project-title">TOD MENA</h2>
+            </a>
+            <a href="beinconnect.html" class="project-card">
+                <div class="project-icon">📺</div>
+                <h2 class="project-title">BeIN Connect</h2>
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // Check if user is logged in
+        const checkAuth = async () => {
+            try {
+                const sessionId = localStorage.getItem('sessionId');
+                if (!sessionId) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const response = await fetch('/check-auth', {
+                    headers: {
+                        'x-session-id': sessionId
+                    }
+                });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    localStorage.removeItem('sessionId');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                document.getElementById('username').textContent = data.username;
+                document.getElementById('accountType').textContent = data.type.charAt(0).toUpperCase() + data.type.slice(1);
+                
+                // Show admin button only for admin users
+                if (data.type === 'admin') {
+                    document.getElementById('adminBtn').style.display = 'flex';
+                }
+            } catch (error) {
+                localStorage.removeItem('sessionId');
+                window.location.href = 'index.html';
+            }
+        };
+
+        // Logout function
+        const logout = () => {
+            const sessionId = localStorage.getItem('sessionId');
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'x-session-id': sessionId
+                }
+            })
+            .then(() => {
+                localStorage.removeItem('sessionId');
+                window.location.href = 'index.html';
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        };
+
+        // Admin panel button click handler
+        document.getElementById('adminBtn').addEventListener('click', () => {
+            window.location.href = 'admin.html';
+        });
+
+        // Check authentication when page loads
+        checkAuth();
+    </script>
+</body>
+</html> 

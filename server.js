@@ -1,0 +1,223 @@
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const PORT = 3000;
+const USERS_FILE = path.join(__dirname, 'users.json');
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Simple session management (in-memory)
+const sessions = new Map();
+
+// Middleware to check session
+const checkSession = (req, res, next) => {
+    const sessionId = req.headers['x-session-id'];
+    if (!sessionId || !sessions.has(sessionId)) {
+        return res.status(401).json({ message: 'Not authenticated' });
+    }
+    req.user = sessions.get(sessionId);
+    next();
+};
+
+// Serve static files (like index.html and register.html)
+app.use(express.static(__dirname));
+
+// Helper function to read users data
+const readUsers = () => {
+    try {
+        const data = fs.readFileSync(USERS_FILE, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        // If file doesn't exist or is empty, return an empty array
+        return [];
+    }
+};
+
+// Helper function to write users data
+const writeUsers = (users) => {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+};
+
+// Registration endpoint
+app.post('/register', (req, res) => {
+    const { username, password, email } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required.' });
+    }
+
+    const users = readUsers();
+
+    // Check if username already exists
+    if (users.find(user => user.username === username)) {
+        return res.status(400).json({ message: 'Username already exists.' });
+    }
+
+    // Add new user with approved: false (requires admin approval)
+    const newUser = {
+        username,
+        password, // Insecure: store passwords securely in production
+        email: email || '', // Optional email
+        type: 'user', // Default type is 'user'
+        approved: false
+    };
+
+    users.push(newUser);
+    writeUsers(users);
+
+    res.status(201).json({ message: 'User registered successfully. Awaiting admin approval.' });
+});
+
+// Login endpoint
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ message: 'Username and password are required.' });
+    }
+
+    const users = readUsers();
+
+    const user = users.find(user => user.username === username && user.password === password);
+
+    if (!user) {
+        return res.status(401).json({ message: 'Invalid username or password.' });
+    }
+
+    // Check for admin approval if user type is 'user'
+    if (user.type === 'user' && !user.approved) {
+        return res.status(401).json({ message: 'Your account is awaiting admin approval.' });
+    }
+
+    // Create session
+    const sessionId = Math.random().toString(36).substring(2);
+    sessions.set(sessionId, {
+        username: user.username,
+        type: user.type
+    });
+
+    // Login successful
+    res.status(200).json({
+        message: 'Login successful!',
+        sessionId,
+        user: { username: user.username, type: user.type }
+    });
+});
+
+// Check authentication endpoint
+app.get('/check-auth', checkSession, (req, res) => {
+    res.json(req.user);
+});
+
+// Logout endpoint
+app.post('/logout', checkSession, (req, res) => {
+    const sessionId = req.headers['x-session-id'];
+    sessions.delete(sessionId);
+    res.json({ message: 'Logged out successfully' });
+});
+
+// Admin endpoints
+app.get('/admin/users', checkSession, (req, res) => {
+    // Check if user is admin
+    if (req.user.type !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const users = readUsers();
+    res.status(200).json(users.map(({ password, ...rest }) => rest)); // Exclude passwords
+});
+
+app.post('/admin/approve/:username', checkSession, (req, res) => {
+    // Check if user is admin
+    if (req.user.type !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const { username } = req.params;
+    const users = readUsers();
+    const userIndex = users.findIndex(user => user.username === username);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (users[userIndex].type !== 'user') {
+         return res.status(400).json({ message: 'Only user type accounts need approval.' });
+    }
+
+    if (users[userIndex].approved) {
+        return res.status(400).json({ message: 'User is already approved.' });
+    }
+
+    users[userIndex].approved = true;
+    writeUsers(users);
+
+    res.status(200).json({ message: 'User approved successfully.' });
+});
+
+// Endpoint to change user type (admin/user)
+app.post('/admin/change-type/:username', checkSession, (req, res) => {
+    // Check if user is admin
+    if (req.user.type !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const { username } = req.params;
+    const { type } = req.body; // Expecting 'admin' or 'user' in the request body
+
+    if (!type || (type !== 'admin' && type !== 'user')) {
+        return res.status(400).json({ message: 'Invalid user type specified.' });
+    }
+
+    const users = readUsers();
+    const userIndex = users.findIndex(user => user.username === username);
+
+    if (userIndex === -1) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Prevent changing the type of the currently logged-in admin
+    if (req.user.username === username && type !== 'admin') {
+         return res.status(400).json({ message: 'Cannot demote yourself from admin.' });
+    }
+
+    users[userIndex].type = type;
+    writeUsers(users);
+
+    res.status(200).json({ message: `User ${username} type changed to ${type}.` });
+});
+
+// Endpoint to revoke user login access (set approved to false)
+app.post('/admin/revoke-access/:username', checkSession, (req, res) => {
+     // Check if user is admin
+     if (req.user.type !== 'admin') {
+         return res.status(403).json({ message: 'Access denied' });
+     }
+
+     const { username } = req.params;
+     const users = readUsers();
+     const userIndex = users.findIndex(user => user.username === username);
+
+     if (userIndex === -1) {
+         return res.status(404).json({ message: 'User not found.' });
+     }
+
+    // Prevent revoking access for the currently logged-in admin
+    if (req.user.username === username) {
+        return res.status(400).json({ message: 'Cannot revoke access for yourself.' });
+    }
+
+     users[userIndex].approved = false;
+     writeUsers(users);
+
+     res.status(200).json({ message: `Login access revoked for user ${username}.` });
+});
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Open http://localhost:${PORT} in your browser.`);
+}); 

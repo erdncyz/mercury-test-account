@@ -1,0 +1,8 @@
+[
+  {
+    "username": "admin",
+    "password": "adminpassword",
+    "type": "admin",
+    "approved": true
+  }
+]

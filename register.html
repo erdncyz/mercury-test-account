@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="password"], input[type="email"] { /* Added email type */
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #4cae4c;
+        }
+        .login-link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">☿</div>
+        <h1>Register</h1>
+        <form id="registerForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <input type="email" id="email" placeholder="Email (Optional)">
+            <button type="submit">Register</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="index.html">Login here</a>
+        </div>
+        <div id="messageArea" style="margin-top: 20px; color: green;"></div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value; // Get email value
+            const messageArea = document.getElementById('messageArea');
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, email })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Display success message on the page
+                messageArea.textContent = data.message; // Use the message from the server response
+                messageArea.style.color = 'green';
+                // Redirect to login after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000); // Redirect after 3 seconds
+            } else {
+                messageArea.textContent = 'Registration failed: ' + data.message;
+                messageArea.style.color = 'red';
+                // alert('Registration failed: ' + data.message);
+            }
+        });
+    </script>
+</body>
+</html> 
