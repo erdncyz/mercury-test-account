@@ -1,13 +1,17 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors');
+const axios = require('axios');
 
 const app = express();
 const PORT = 3000;
 const USERS_FILE = path.join(__dirname, 'users.json');
 
-// Middleware to parse JSON bodies
+// Middleware
+app.use(cors());
 app.use(express.json());
+app.use(express.static(__dirname));
 
 // Simple session management (in-memory)
 const sessions = new Map();
@@ -21,9 +25,6 @@ const checkSession = (req, res, next) => {
     req.user = sessions.get(sessionId);
     next();
 };
-
-// Serve static files (like index.html and register.html)
-app.use(express.static(__dirname));
 
 // Helper function to read users data
 const readUsers = () => {
@@ -214,6 +215,57 @@ app.post('/admin/revoke-access/:username', checkSession, (req, res) => {
      writeUsers(users);
 
      res.status(200).json({ message: `Login access revoked for user ${username}.` });
+});
+
+// Token endpoint
+app.post('/api/token', async (req, res) => {
+    try {
+        const response = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error('Token error:', error);
+        res.status(500).json({ error: 'Failed to get token' });
+    }
+});
+
+// APAC users endpoint
+app.get('/api/apac/users', async (req, res) => {
+    try {
+        const { environment, userPackage, countryCode } = req.query;
+        
+        // Convert environment to lowercase for API
+        const apiEnvironment = environment.toLowerCase();
+        
+        // Convert userPackage to lowercase if it's 'none', otherwise keep as is
+        const apiUserPackage = userPackage === 'NONE' ? 'none' : userPackage;
+        
+        const token = req.headers['x-auth-token'];
+        
+        const response = await axios.get(`http://172.28.9.123/api/apac/apacuser`, {
+            params: {
+                isValid: true,
+                isLocked: false,
+                environment: apiEnvironment,
+                userPackage: apiUserPackage,
+                countryCode: countryCode
+            },
+            headers: {
+                'x-auth-token': token
+            }
+        });
+        
+        res.json(response.data);
+    } catch (error) {
+        console.error('APAC users error:', error);
+        res.status(500).json({ error: 'Failed to fetch APAC users' });
+    }
 });
 
 // Start the server

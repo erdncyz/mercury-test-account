@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APAC Package - Mercury</title>
+    <title>APAC Package User Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
@@ -14,11 +14,12 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            min-height: 100vh;
-            color: #1e293b;
+            background-color: #f0f2f5; /* Light gray background */
+            /* Adjusting body padding to make space for fixed navbar */
+            padding-top: 60px; /* Approximate height of navbar */
+            color: #333;
         }
-
+        
         .navbar {
             background-color: white;
             padding: 1rem 2rem;
@@ -88,143 +89,120 @@
             background-color: #dc2626;
         }
 
-        .main-content {
-            max-width: 1200px;
-            margin: 6rem auto 2rem;
-            padding: 0 2rem;
+        .container {
+            background-color: #fff; /* White background for the card */
+            padding: 30px;
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            max-width: 500px; /* Max width for the card */
+            width: 100%;
+            box-sizing: border-box;
+            margin: 20px auto; /* Add margin to center container below navbar */
         }
-
-        .header-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 0.5rem;
-        }
-
-        .package-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .package-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-        }
-
-        .package-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .package-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .package-icon {
-            font-size: 2rem;
-            color: #3b82f6;
-        }
-
-        .package-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .package-details {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            background-color: #f8fafc;
-            border-radius: 6px;
-        }
-
-        .detail-label {
-            color: #64748b;
-            font-size: 0.875rem;
-        }
-
-        .detail-value {
-            font-weight: 500;
-            color: #0f172a;
-        }
-
-        .package-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: 1rem;
-        }
-
-        .action-btn {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        h1 {
             text-align: center;
-            text-decoration: none;
-            font-size: 0.875rem;
+            color: #007bff; /* Blue color for the title */
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
         }
-
-        .edit-btn {
-            background-color: #3b82f6;
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600; /* Slightly bolder label */
+            color: #555;
+        }
+        select {
+            padding: 10px 15px;
+            width: 100%;
+            margin-bottom: 0;
+            border: 1px solid #ccc;
+            border-radius: 5px; /* Rounded corners for inputs */
+            font-size: 1rem;
+            box-sizing: border-box;
+            appearance: none; /* Remove default select styling */
+            background-color: #fff;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C114.7L159.1%2C2.8c-8.7-8.7-22.9-8.7-31.7%2C0L5.4%2C114.7c-8.7%2C8.7-8.7%2C22.9%2C0%2C31.7l15.6%2C15.6c4.3%2C4.3%2C11.3%2C4.3%2C15.6%2C0l110.3-110.3l110.3%2C110.3c4.3%2C4.3%2C11.3%2C4.3%2C15.6%2C0l15.6-15.6C295.7%2C137.6%2C295.7%2C123.4%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+            padding-right: 30px; /* Make space for the arrow */
+        }
+        select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        /* Specific styles for the search button */
+        .container button {
+            background-color: #007bff;
             color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .container button:hover {
+            background-color: #0056b3;
         }
 
-        .edit-btn:hover {
-            background-color: #2563eb;
+        #error {
+            color: #dc3545;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            border-radius: 4px;
+            display: none;
+        }
+         #error:not(:empty) {
+            display: block;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9; /* Slightly different background for results */
+            border-radius: 4px;
+            display: none;
+            overflow-x: auto;
+            color: #333;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+        }
+        #results pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
-        .delete-btn {
-            background-color: #ef4444;
-            color: white;
-        }
-
-        .delete-btn:hover {
-            background-color: #dc2626;
-        }
-
+        /* Responsive adjustments for navbar */
         @media (max-width: 640px) {
             .navbar {
                 padding: 1rem;
             }
-
-            .main-content {
-                padding: 0 1rem;
-                margin-top: 5rem;
-            }
-
+             .nav-content {
+                 flex-direction: column;
+                 gap: 0.5rem;
+             }
             .button-group {
                 gap: 0.5rem;
             }
-
-            button {
-                padding: 0.5rem;
+            .navbar button {
+                 padding: 0.5rem;
+            }
+            body {
+                padding-top: 120px; /* More padding for stacked navbar */
             }
         }
+
     </style>
 </head>
 <body>
@@ -253,13 +231,125 @@
         </div>
     </nav>
 
-    <main class="main-content">
-        <div class="header-card">
-            <h1 class="header-title">Get Apac User</h1>
+    <div class="container">
+        <h1>APAC Package User Search</h1>
+        
+        <div class="form-group">
+            <label for="environment">Environment:</label>
+            <select id="environment">
+                <option value="TEST">TEST</option>
+                <option value="REGRESSION">REGRESSION</option>
+                <option value="PRODUCTION">PRODUCTION</option>
+            </select>
         </div>
-    </main>
+
+        <div class="form-group">
+            <label for="userPackage">User Package:</label>
+            <select id="userPackage">
+                <option value="ONE_MONTH">ONE_MONTH</option>
+                <option value="ONE_YEAR">ONE_YEAR</option>
+                <option value="NONE">NONE</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="countryCode">Country Code:</label>
+            <select id="countryCode">
+                <option value="TH">TH</option>
+                <option value="MY">MY</option>
+                <option value="AU">AU</option>
+                <option value="SG">SG</option>
+                <option value="HK">HK</option>
+                <option value="PH">PH</option>
+                <option value="ID">ID</option>
+                <option value="NZ">NZ</option>
+            </select>
+        </div>
+
+        <button onclick="searchUsers()">Search Users</button>
+        <div id="error" class="error"></div>
+        <div id="results"></div>
+    </div>
 
     <script>
+        let authToken = null;
+
+        async function getToken() {
+            try {
+                const response = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.token) {
+                   return data.token;
+                } else {
+                   throw new Error('Token not received');
+                }
+            } catch (error) {
+                console.error('Error getting token:', error);
+                throw error;
+            }
+        }
+
+        async function searchUsers() {
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = ''; // Clear previous results
+
+            // Add a loading indicator perhaps?
+
+            try {
+                if (!authToken) {
+                    authToken = await getToken();
+                }
+
+                const environment = document.getElementById('environment').value;
+                const userPackage = document.getElementById('userPackage').value;
+                const countryCode = document.getElementById('countryCode').value;
+
+                const response = await fetch(`/api/apac/users?isValid=true&isLocked=false&environment=${environment}&userPackage=${userPackage}&countryCode=${countryCode}`, {
+                    headers: {
+                        'x-auth-token': authToken
+                    }
+                });
+
+                if (!response.ok) {
+                     // Attempt to parse error response from server
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData && errorData.error ? errorData.error : response.statusText;
+                    throw new Error(`Failed to fetch users: ${errorMessage}`);
+                }
+
+                const data = await response.json();
+                
+                // Display results in a table
+                let tableHtml = '<table class="user-table"><tbody>';
+                for (const key in data) {
+                    if (data.hasOwnProperty(key)) {
+                        tableHtml += `<tr><td><strong>${key}:</strong></td><td>${data[key]}</td></tr>`;
+                    }
+                }
+                tableHtml += '</tbody></table>';
+
+                resultsDiv.innerHTML = tableHtml;
+                resultsDiv.style.display = 'block';
+
+            } catch (error) {
+                errorDiv.textContent = 'Error: ' + error.message;
+                errorDiv.style.display = 'block';
+                // If token error, clear token to attempt re-fetching on next click
+                if (error.message.includes('token') || error.message.includes('authenticated')) {
+                     authToken = null;
+                }
+            }
+        }
+
         const logout = () => {
             const sessionId = localStorage.getItem('sessionId');
             fetch('/logout', {
