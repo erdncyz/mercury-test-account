@@ -183,7 +183,7 @@
             word-wrap: break-word;
         }
 
-        /* Styles for the "Kullanıldı" button */
+        /* Styles for the "Mark as Used" button */
         .used-button {
             padding: 10px 15px;
             width: 100%;
@@ -298,9 +298,9 @@
         </div>
 
         <button onclick="searchUsers()">Search Users</button>
-        <button id="markUsedButton" class="used-button green" style="display: none;" onclick="markAsUsed()">Mark as Used</button>
         <div id="error" class="error"></div>
         <div id="results"></div>
+        <button id="markUsedButton" class="used-button green" style="display: none;" onclick="markAsUsed()">Mark as Used</button>
     </div>
 
     <script>
@@ -336,11 +336,13 @@
             errorDiv.style.display = 'none';
             resultsDiv.style.display = 'none';
             resultsDiv.innerHTML = ''; // Clear previous results
+
+            // Reset button state for a new search
             markUsedButton.style.display = 'none'; // Hide button initially
-            markUsedButton.disabled = false; // Ensure button is enabled for next search
-            markUsedButton.classList.remove('red'); // Reset button color
+            markUsedButton.disabled = false; // Ensure button is enabled
+            markUsedButton.classList.remove('red'); // Reset color
             markUsedButton.classList.add('green');
-            markUsedButton.textContent = 'Mark as Used'; // Reset button text
+            markUsedButton.textContent = 'Mark as Used'; // Set button text to English
             currentUserData = null; // Clear previous user data
 
             // Add a loading indicator perhaps?
@@ -435,7 +437,7 @@
 
             const button = document.getElementById('markUsedButton');
             button.disabled = true; // Disable button while processing
-            button.textContent = 'İşleniyor...'; // Change text to indicate processing
+            button.textContent = 'Processing...'; // Change text to indicate processing
 
             try {
                  if (!authToken) {

@@ -301,6 +301,33 @@ app.put('/api/apac/users/:userId', async (req, res) => {
     }
 });
 
+// Endpoint to get APAC vouchers
+app.get('/api/apac/vouchers', async (req, res) => {
+    try {
+        const { environment, countryCode } = req.query;
+        const token = req.headers['x-auth-token'];
+
+        // Basic validation (optional but good practice)
+        if (!environment || !countryCode) {
+            return res.status(400).json({ error: 'Environment and countryCode are required query parameters.' });
+        }
+
+        const response = await axios.get(`http://172.28.9.123/api/apac/vouchers?isUsed=false&environment=${environment}&countryCode=${countryCode}`, {
+            headers: {
+                'x-auth-token': token
+            }
+        });
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error('APAC vouchers error:', error);
+        // Pass the status code from the external API if available, otherwise use 500
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        res.status(statusCode).json({ error: 'Failed to fetch APAC vouchers' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
