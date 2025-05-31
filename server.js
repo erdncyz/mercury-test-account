@@ -268,6 +268,39 @@ app.get('/api/apac/users', async (req, res) => {
     }
 });
 
+// Endpoint to mark APAC user as used
+app.put('/api/apac/users/:userId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const token = req.headers['x-auth-token'];
+        const requestBody = req.body;
+
+        // Ensure the _id is not sent in the body to the external API
+        if (requestBody._id) {
+            delete requestBody._id;
+        }
+
+        // Explicitly set isEmailValid and isLocked as requested
+        requestBody.isEmailValid = false;
+        requestBody.isLocked = true;
+
+        const response = await axios.put(`http://172.28.9.123/api/apac/apacuser/${userId}`, requestBody, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error('Mark user as used error:', error);
+        // Pass the status code from the external API if available, otherwise use 500
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        res.status(statusCode).json({ error: 'Failed to mark APAC user as used' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
