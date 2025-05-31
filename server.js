@@ -328,6 +328,39 @@ app.get('/api/apac/vouchers', async (req, res) => {
     }
 });
 
+// Endpoint to mark APAC voucher as used
+app.post('/api/apac/vouchers/:id', async (req, res) => {
+    try {
+        const voucherId = req.params.id;
+        const token = req.headers['x-auth-token'];
+        const requestBody = req.body;
+
+        // Create new request body with only the required fields
+        const newRequestBody = {
+            isUsed: true,
+            voucherCode: requestBody.voucherCode,
+            countryCode: requestBody.countryCode,
+            offerType: requestBody.offerType,
+            environment: requestBody.environment
+        };
+
+        const response = await axios.post(`http://172.28.9.123/api/apac/vouchers/?id=${voucherId}`, newRequestBody, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error('Mark voucher as used error:', error);
+        // Pass the status code from the external API if available, otherwise use 500
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        res.status(statusCode).json({ error: 'Failed to mark APAC voucher as used' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

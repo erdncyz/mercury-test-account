@@ -204,6 +204,37 @@
             word-break: normal;
         }
 
+        /* Styles for the "Mark as Used" button (Voucher) */
+        .mark-voucher-used-button {
+            padding: 10px 15px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            color: white;
+        }
+
+        .mark-voucher-used-button.green {
+            background-color: #28a745; /* Green color */
+        }
+
+        .mark-voucher-used-button.green:hover:not(:disabled) {
+            background-color: #218838;
+        }
+
+        .mark-voucher-used-button.red {
+            background-color: #dc3545; /* Red color */
+        }
+        
+        .mark-voucher-used-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 640px) {
             .navbar {
@@ -282,10 +313,12 @@
 
         <div id="error" class="error"></div>
         <div id="results"></div>
+        <button id="markVoucherUsedButton" class="mark-voucher-used-button green" style="display: none;" onclick="markVoucherAsUsed()">Mark as Used</button>
     </div>
 
     <script>
         let authToken = null; // Token will be stored here
+        let currentVoucherData = null; // To store the fetched voucher data
 
         async function getToken() {
             try {
@@ -310,11 +343,21 @@
         async function searchVouchers() {
             const errorDiv = document.getElementById('error');
             const resultsDiv = document.getElementById('results');
+            const markUsedButton = document.getElementById('markVoucherUsedButton'); // Get the button
 
             errorDiv.textContent = '';
             errorDiv.style.display = 'none';
             resultsDiv.style.display = 'none';
             resultsDiv.innerHTML = ''; // Clear previous results
+            
+            // Reset button state for a new search
+            markUsedButton.style.display = 'none'; // Hide button initially
+            markUsedButton.disabled = false; // Ensure button is enabled
+            markUsedButton.classList.remove('red'); // Reset color
+            markUsedButton.classList.add('green');
+            markUsedButton.textContent = 'Mark as Used'; // Reset text
+            currentVoucherData = null; // Clear previous voucher data
+
 
             try {
                 if (!authToken) {
@@ -349,23 +392,32 @@
                 }
 
                 if (vouchersToDisplay.length > 0) {
-                     let resultsHtml = '';
-                     vouchersToDisplay.forEach(voucher => {
-                         resultsHtml += '<div class="voucher-details-block">';
-                         for (const key in voucher) {
-                             if (voucher.hasOwnProperty(key)) {
-                                 resultsHtml += `<p><strong>${key}:</strong> ${voucher[key]}</p>`;
-                             }
-                         }
-                         resultsHtml += '</div>';
-                     });
+                    let resultsHtml = '';
+                    vouchersToDisplay.forEach(voucher => {
+                        resultsHtml += '<div class="voucher-details-block">';
+                        for (const key in voucher) {
+                            if (voucher.hasOwnProperty(key)) {
+                                resultsHtml += `<p><strong>${key}:</strong> ${voucher[key]}</p>`;
+                            }
+                        }
+                        resultsHtml += '</div>';
+                    });
 
-                     resultsDiv.innerHTML = resultsHtml;
-                     resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = resultsHtml;
+                    resultsDiv.style.display = 'block';
+
+                    // Store the first voucher's data if multiple or the single one
+                    currentVoucherData = vouchersToDisplay[0];
+
+                    // Show the mark as used button if a voucher with _id is found
+                    if (currentVoucherData && currentVoucherData._id) {
+                        markUsedButton.style.display = 'block';
+                    }
 
                 } else {
                     resultsDiv.innerHTML = '<p>No vouchers found matching criteria.</p>';
                     resultsDiv.style.display = 'block';
+                     markUsedButton.style.display = 'none'; // Hide button if no results
                 }
 
             } catch (error) {
@@ -376,6 +428,9 @@
                  if (error.message.includes('token') || error.message.includes('authenticated')) {
                      authToken = null;
                  }
+                 // Hide button and clear data on fetch error
+                 markUsedButton.style.display = 'none';
+                 currentVoucherData = null;
             }
         }
 
@@ -395,6 +450,76 @@
                 console.error('Logout failed:', error);
             });
         };
+
+        async function markVoucherAsUsed() {
+            if (!currentVoucherData || !currentVoucherData._id) {
+                console.error('No voucher data or _id available to mark as used.');
+                 const errorDiv = document.getElementById('error');
+                 errorDiv.textContent = 'Error: No voucher data available to mark as used.';
+                 errorDiv.style.display = 'block';
+                return;
+            }
+
+            const button = document.getElementById('markVoucherUsedButton');
+            button.disabled = true; // Disable button while processing
+            button.textContent = 'Processing...'; // Change text to indicate processing
+
+            try {
+                 if (!authToken) {
+                     // Attempt to get token if not available
+                     try {
+                         authToken = await getToken();
+                     } catch (tokenError) {
+                         throw new Error('Failed to get token for marking as used.');
+                     }
+                 }
+
+                const voucherId = currentVoucherData._id;
+                // Use your server.js endpoint for the PUT request
+                const apiUrl = `/api/apac/vouchers/${voucherId}`;
+                
+                // Send the entire fetched voucher data as the body to your server endpoint.
+                // Your server endpoint will handle the modification (removing _id, setting isUsed).
+                const requestBody = { ...currentVoucherData };
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': authToken // Use the obtained token
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData && errorData.error ? errorData.error : response.statusText;
+                    throw new Error(`Failed to mark voucher as used: ${errorMessage}`);
+                }
+
+                // Success: Change button color to red and keep it disabled
+                button.classList.remove('green');
+                button.classList.add('red');
+                button.textContent = 'Mark as Used'; // Revert text to Mark as Used
+                button.disabled = true; // Keep disabled after successful use
+                console.log('Voucher marked as used successfully.');
+
+            } catch (error) {
+                console.error('Error marking voucher as used:', error);
+                 const errorDiv = document.getElementById('error');
+                 errorDiv.textContent = 'Error: ' + error.message;
+                 errorDiv.style.display = 'block';
+
+                // Re-enable button and reset text on error
+                button.disabled = false;
+                button.textContent = 'Mark as Used';
+                 // If token error, clear token to attempt re-fetching on next click
+                 if (error.message.includes('token') || error.message.includes('authenticated')) {
+                      authToken = null;
+                 }
+            }
+        }
+
     </script>
 </body>
 </html> 
