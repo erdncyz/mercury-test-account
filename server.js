@@ -361,6 +361,38 @@ app.post('/api/apac/vouchers/:id', async (req, res) => {
     }
 });
 
+// Endpoint to handle DB query for SMS code
+app.post('/api/dbquery', async (req, res) => {
+    try {
+        const { query, environment, project } = req.body;
+        const token = req.headers['x-auth-token'];
+
+        // Basic validation
+        if (!query || !environment || !project) {
+             return res.status(400).json({ error: 'Query, environment, and project are required in the request body.' });
+        }
+
+        const response = await axios.post('http://172.28.9.123/api/standalone/dbquery', {
+            query: query,
+            environment: environment,
+            project: project
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+
+        res.json(response.data);
+
+    } catch (error) {
+        console.error('DB query error:', error);
+        // Pass the status code from the external API if available, otherwise use 500
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        res.status(statusCode).json({ error: 'Failed to execute DB query' });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

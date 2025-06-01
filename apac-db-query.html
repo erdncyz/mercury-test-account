@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APAC DB Query - Mercury</title>
+    <title>APAC DB Query</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
@@ -14,9 +14,10 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            min-height: 100vh;
-            color: #1e293b;
+            background-color: #f0f2f5;
+            padding-top: 60px; /* Space for fixed navbar */
+            color: #333;
+            line-height: 1.6;
         }
 
         .navbar {
@@ -88,122 +89,128 @@
             background-color: #dc2626;
         }
 
-        .main-content {
-            max-width: 1200px;
-            margin: 6rem auto 2rem;
-            padding: 0 2rem;
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px; /* Adjusted max-width */
+            width: 100%;
+            box-sizing: border-box;
+            margin: 80px auto 20px auto; /* Adjust top margin for fixed navbar */
         }
 
-        .header-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
         }
 
-        .header-title {
-            font-size: 1.5rem;
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 0.5rem;
+            color: #555;
         }
 
-        .query-container {
-            background-color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .query-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .query-input {
+        input[type="text"],
+        select, 
+        .search-button {
+            padding: 10px 15px;
             width: 100%;
-            min-height: 150px;
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.875rem;
-            resize: vertical;
+            margin-bottom: 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
         }
 
-        .query-input:focus {
+         input[type="text"]:focus,
+        select:focus {
             outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
         }
 
-        .execute-btn {
-            background-color: #3b82f6;
+        select {
+             appearance: none;
+             background-color: #fff;
+             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C114.7L159.1%2C2.8c-8.7-8.7-22.9-8.7-31.7%2C0L5.4%2C114.7c-8.7%2C8.7-8.7%2C22.9%2C0%2C31.7l15.6%2C15.6c4.3%2C4.3%2C11.3%2C4.3%2C15.6%2C0l110.3-110.3l110.3%2C110.3c4.3%2C4.3%2C11.3%2C4.3%2C15.6%2C0l15.6-15.6C295.7%2C137.6%2C295.7%2C123.4%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+             background-repeat: no-repeat;
+             background-position: right 10px top 50%;
+             background-size: 12px auto;
+             padding-right: 30px;
+        }
+
+        .search-button { /* Reusing search-button class for Get SMS Code */
+            background-color: #007bff;
             color: white;
-            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 6px;
-            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            align-self: flex-start;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
         }
 
-        .execute-btn:hover {
-            background-color: #2563eb;
+        .search-button:hover { /* Reusing search-button class */
+            background-color: #0056b3;
         }
 
-        .results-container {
-            margin-top: 2rem;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            padding: 1rem;
+        #error {
+            color: #dc3545;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            border-radius: 4px;
+            display: none;
+        }
+
+        #error:not(:empty) {
+            display: block;
+        }
+
+        #results {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            display: none;
             overflow-x: auto;
+            color: #333;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap; /* Preserve whitespace and break lines */
+            word-wrap: break-word; /* Break long strings */
         }
 
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-        }
-
-        .results-table th,
-        .results-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .results-table th {
-            background-color: #f1f5f9;
-            font-weight: 500;
-            color: #64748b;
-        }
-
-        .results-table tr:last-child td {
-            border-bottom: none;
-        }
-
+        /* Responsive adjustments */
         @media (max-width: 640px) {
             .navbar {
                 padding: 1rem;
             }
-
-            .main-content {
-                padding: 0 1rem;
-                margin-top: 5rem;
-            }
-
+             .nav-content {
+                 flex-direction: column;
+                 gap: 0.5rem;
+             }
             .button-group {
                 gap: 0.5rem;
             }
-
-            button {
-                padding: 0.5rem;
+            .navbar button {
+                 padding: 0.5rem;
+            }
+            body {
+                padding-top: 120px; /* More padding for stacked navbar */
             }
         }
+
     </style>
 </head>
 <body>
@@ -232,14 +239,53 @@
         </div>
     </nav>
 
-    <main class="main-content">
-        <div class="header-card">
-            <h1 class="header-title">DB Query</h1>
+    <div class="container">
+        <h1>Get SMS Code from DB</h1>
+
+         <div class="form-group">
+            <label for="environment">Environment:</label>
+            <select id="environment">
+                <option value="regression">REGRESSION</option>
+                <option value="test">TEST</option>
+                <option value="production">PRODUCTION</option>
+            </select>
         </div>
-    </main>
+
+        <div class="form-group">
+            <label for="phoneNumber">Phone Number:</label>
+            <input type="text" id="phoneNumber" placeholder="Enter phone number">
+        </div>
+
+        <button class="search-button" onclick="getSmsCode()">Get SMS Code</button>
+
+        <div id="error" class="error"></div>
+        <div id="results"></div>
+    </div>
 
     <script>
-        const logout = () => {
+        let authToken = null; // Token will be stored here
+
+        async function getToken() {
+            try {
+                const response = await fetch('/api/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (data.token) {
+                    return data.token;
+                } else {
+                    throw new Error('Token not received');
+                }
+            } catch (error) {
+                console.error('Error getting token:', error);
+                throw error;
+            }
+        }
+
+         const logout = () => {
             const sessionId = localStorage.getItem('sessionId');
             fetch('/logout', {
                 method: 'POST',
@@ -256,69 +302,92 @@
             });
         };
 
-        document.getElementById('queryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const query = e.target.querySelector('.query-input').value;
-            const sessionId = localStorage.getItem('sessionId');
+        async function getSmsCode() {
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const environmentSelect = document.getElementById('environment');
 
-            try {
-                const response = await fetch('/execute-query', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-session-id': sessionId
-                    },
-                    body: JSON.stringify({ query })
-                });
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = ''; // Clear previous results
 
-                if (!response.ok) {
-                    throw new Error('Query execution failed');
-                }
+            const phoneNumber = phoneNumberInput.value.trim();
+            const environment = environmentSelect.value;
 
-                const data = await response.json();
-                displayResults(data);
-            } catch (error) {
-                console.error('Error executing query:', error);
-                alert('Failed to execute query. Please try again.');
-            }
-        });
-
-        function displayResults(data) {
-            const resultsContainer = document.getElementById('resultsContainer');
-            const resultsHeader = document.getElementById('resultsHeader');
-            const resultsBody = document.getElementById('resultsBody');
-
-            // Clear previous results
-            resultsHeader.innerHTML = '';
-            resultsBody.innerHTML = '';
-
-            if (data.length === 0) {
-                resultsContainer.style.display = 'none';
+            if (!phoneNumber) {
+                errorDiv.textContent = 'Please enter a phone number.';
+                errorDiv.style.display = 'block';
                 return;
             }
 
-            // Create table headers
-            const headerRow = document.createElement('tr');
-            Object.keys(data[0]).forEach(key => {
-                const th = document.createElement('th');
-                th.textContent = key;
-                headerRow.appendChild(th);
-            });
-            resultsHeader.appendChild(headerRow);
+            if (phoneNumber.length < 4) {
+                 errorDiv.textContent = 'Phone number must be at least 4 digits long.';
+                 errorDiv.style.display = 'block';
+                 return;
+            }
 
-            // Create table rows
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                Object.values(row).forEach(value => {
-                    const td = document.createElement('td');
-                    td.textContent = value;
-                    tr.appendChild(td);
+            // Remove the first 3 digits
+            const modifiedPhoneNumber = phoneNumber.substring(3);
+
+            // Construct the SQL query
+            const sqlQuery = `SELECT TO_CHAR(SUBSTR(REQUEST_CONTENT,INSTR(REQUEST_CONTENT, '. (Ref: ')-6,6)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST D WHERE D.CREATION_DATE > SYSDATE-1 AND REQUEST_CONTENT LIKE '%${modifiedPhoneNumber}%' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
+
+            const getSmsButton = document.querySelector('.search-button');
+            getSmsButton.disabled = true; // Disable button
+            getSmsButton.textContent = 'Loading...'; // Change button text
+
+            try {
+                if (!authToken) {
+                    authToken = await getToken();
+                }
+
+                const response = await fetch('/api/dbquery', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth-token': authToken
+                    },
+                    body: JSON.stringify({
+                        query: sqlQuery,
+                        environment: environment,
+                        project: 'apac' // As specified in the curl command
+                    })
                 });
-                resultsBody.appendChild(tr);
-            });
 
-            resultsContainer.style.display = 'block';
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => null);
+                    const errorMessage = errorData && errorData.error ? errorData.error : response.statusText;
+                    throw new Error(`Failed to get SMS code: ${errorMessage}`);
+                }
+
+                const data = await response.json();
+                
+                // Display the response
+                if (data && Array.isArray(data) && data.length > 0 && Array.isArray(data[0]) && data[0].length > 0) {
+                    resultsDiv.innerHTML = `<p><strong>SMS Code:</strong> ${data[0][0]}</p>`;
+                     resultsDiv.style.display = 'block';
+                } else {
+                     resultsDiv.innerHTML = '<p>No SMS code found.</p>';
+                     resultsDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Error fetching SMS code:', error);
+                errorDiv.textContent = 'Error: ' + error.message;
+                errorDiv.style.display = 'block';
+                 // If token error, clear token to attempt re-fetching on next click
+                 if (error.message.includes('token') || error.message.includes('authenticated')) {
+                     authToken = null;
+                 }
+            } finally {
+                 // Re-enable button and reset text regardless of success or failure
+                 getSmsButton.disabled = false;
+                 getSmsButton.textContent = 'Get SMS Code';
+            }
         }
+
     </script>
 </body>
 </html> 
