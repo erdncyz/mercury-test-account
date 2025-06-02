@@ -502,10 +502,10 @@
                 button.classList.add('red');
                 button.textContent = 'Mark as Used'; // Revert text to Mark as Used
                 button.disabled = true; // Keep disabled after successful use
-                console.log('Voucher marked as used successfully.');
+                //console.log('Voucher marked as used successfully.');
 
             } catch (error) {
-                console.error('Error marking voucher as used:', error);
+                //console.error('Error marking voucher as used:', error);
                  const errorDiv = document.getElementById('error');
                  errorDiv.textContent = 'Error: ' + error.message;
                  errorDiv.style.display = 'block';

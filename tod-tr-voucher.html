@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOD TR Package User Search</title>
+    <title>TOD TR Voucher Search</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -104,7 +104,7 @@
             font-weight: 600;
             color: #555;
         }
-        select, .main-content input[type="text"] {
+        select {
             padding: 10px 15px;
             width: 100%;
             border: 1px solid #ccc;
@@ -114,7 +114,7 @@
             background-color: #fff;
             margin-bottom: 0;
         }
-        select:focus, .main-content input[type="text"]:focus {
+        select:focus {
             outline: none;
             border-color: #007bff;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
@@ -251,19 +251,8 @@
     </nav>
     <main class="main-content">
         <div class="big-card">
-            <div class="big-card-title">TOD TR Package User Search</div>
+            <div class="big-card-title">TOD TR Voucher Search</div>
             <form id="searchForm">
-                <div class="form-group">
-                    <label for="userPackage">User Package</label>
-                    <select id="userPackage" required>
-                        <option value="NONE">NONE</option>
-                        <option value="NULL">NULL</option>
-                        <option value="FUN">FUN</option>
-                        <option value="SPORT">SPORT</option>
-                        <option value="EXTRA">EXTRA</option>
-                        <option value="FULL">FULL</option>
-                    </select>
-                </div>
                 <div class="form-group">
                     <label for="environment">Environment</label>
                     <select id="environment" required>
@@ -273,19 +262,10 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="userType">User Type</label>
-                    <select id="userType" required>
-                        <option value="Quick Register Setup">Quick Register Setup</option>
-                        <option value="Standart Register Setup">Standard Register Setup</option>
-                        <option value="non-user">non-user</option>
-                        <option value="DONDURULMUS">DONDURULMUS</option>
-                        <option value="ASKIYA_ALINMIS">ASKIYA_ALINMIS</option>
-                        <option value="OMEGA">OMEGA</option>
-                        <option value="DON_COZ">DON_COZ</option>
-                        <option value="SUS_COZ">SUS_COZ</option>
-                        <option value="EYK_COZ">EYK_COZ</option>
-                        <option value="FESIH">FESIH</option>
-                        <option value="TOD_FRAUD">TOD_FRAUD</option>
+                    <label for="offerType">Offer Type</label>
+                    <select id="offerType" required>
+                        <option value="OFFER COUPON">OFFER COUPON</option>
+                        <option value="FREE TRIAL">FREE TRIAL</option>
                     </select>
                 </div>
                 <button type="submit" class="search-btn">Search</button>
@@ -314,9 +294,8 @@
 
         document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const userPackage = document.getElementById('userPackage').value;
             const environment = document.getElementById('environment').value;
-            const userType = document.getElementById('userType').value;
+            const offerType = document.getElementById('offerType').value;
             const errorDiv = document.getElementById('error');
             const resultsDiv = document.getElementById('results');
             errorDiv.textContent = '';
@@ -324,44 +303,14 @@
             resultsDiv.style.display = 'none';
             resultsDiv.innerHTML = '';
             try {
-                const token = localStorage.getItem('x-auth-token') || '';
-                // Map userPackage for API
-                const userPackageMap = {
-                    NONE: 'none',
-                    NULL: 'null',
-                    FUN: 'O1A_EGL_OTT',
-                    SPORT: 'O1A_SPR_OTT',
-                    EXTRA: 'O1A_SPE_OTT',
-                    FULL: 'O1A_FULL_OTT'
-                };
-                const apiUserPackage = userPackageMap[userPackage] || userPackage;
-                // Map environment for API
-                const environmentMap = {
-                    TEST: 'test',
-                    REGRESSION: 'regression',
-                    PRODUCTION: 'prod'
-                };
-                const apiEnvironment = environmentMap[environment] || environment;
                 const params = new URLSearchParams({
-                    userPackage: apiUserPackage,
-                    environment: apiEnvironment,
-                    userType,
-                    isLocked: 'false',
-                    isValid: 'true'
+                    environment,
+                    offerType
                 });
-                const response = await fetch(`/api/tod-tr/package-users?${params.toString()}`, {
-                    headers: {
-                        'x-auth-token': token
-                    }
-                });
+                const response = await fetch(`/api/tod-tr/vouchers?${params.toString()}`);
                 const data = await response.json();
                 if (!response.ok) {
                     errorDiv.textContent = data.error || 'An error occurred.';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                if (data && typeof data === 'object' && data.error === 'The user with the given criteria was not found.') {
-                    errorDiv.textContent = data.error;
                     errorDiv.style.display = 'block';
                     return;
                 }
@@ -370,12 +319,12 @@
                     resultsDiv.style.display = 'block';
                     return;
                 }
-                // Dikey gösterim
+                // Show results in a table
                 let html = '';
                 const renderVertical = (obj, idx) => {
                     let out = '';
-                    // Mark as used button first
-                    out += `<button class="used-button green" id="usedBtn${idx}" onclick="markAsUsed(${idx})">Mark as used</button>`;
+                    // Mark as Used button
+                    out += `<button class=\"used-button green\" id=\"usedBtn${idx}\" onclick=\"markVoucherAsUsed(${idx})\">Mark as Used</button>`;
                     out += '<table>';
                     for (const key in obj) {
                         out += `<tr><th>${key}</th><td>${obj[key]}</td></tr>`;
@@ -383,54 +332,56 @@
                     out += '</table>';
                     return out;
                 };
-                // Sonuçları ve kullanıcıları sakla
-                window.todTrUsers = Array.isArray(data) ? data : [data];
+                // Store vouchers globally for use in markVoucherAsUsed
+                window.todTrVouchers = Array.isArray(data) ? data : [data];
                 if (Array.isArray(data)) {
-                    html = data.map((obj, idx) => renderVertical(obj, idx)).join('<hr style="margin:16px 0;">');
+                    html = data.map((obj, idx) => renderVertical(obj, idx)).join('<hr style=\"margin:16px 0;\">');
                 } else {
                     html = renderVertical(data, 0);
                 }
                 resultsDiv.innerHTML = html;
                 resultsDiv.style.display = 'block';
-                errorDiv.textContent = '';
-                errorDiv.style.display = 'none';
             } catch (err) {
                 errorDiv.textContent = 'An error occurred.';
                 errorDiv.style.display = 'block';
             }
         });
-        async function markAsUsed(idx) {
-            const user = window.todTrUsers[idx];
-            if (!user || !user._id) return;
+        function navigate(page) {
+            window.location.href = page;
+        }
+        async function markVoucherAsUsed(idx) {
+            const voucher = window.todTrVouchers[idx];
+            if (!voucher || !voucher._id) return;
             const btn = document.getElementById('usedBtn' + idx);
             btn.disabled = true;
-            btn.textContent = 'Sending...';
+            btn.textContent = 'Processing...';
             try {
-                const response = await fetch(`/api/tod-tr/package-users/${user._id}`, {
-                    method: 'PUT',
+                // Prepare request body
+                const body = { ...voucher };
+                delete body._id;
+                body.isUsed = true;
+                const response = await fetch(`/api/tod-tr/vouchers/${voucher._id}`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(user)
+                    body: JSON.stringify(body)
                 });
                 const data = await response.json();
                 if (response.ok) {
                     btn.classList.remove('green');
                     btn.classList.add('red');
-                    btn.textContent = 'Mark as used';
+                    btn.textContent = 'Marked as Used';
                 } else {
                     btn.disabled = false;
-                    btn.textContent = 'Mark as used';
+                    btn.textContent = 'Mark as Used';
                     alert(data.error || 'An error occurred.');
                 }
             } catch (err) {
                 btn.disabled = false;
-                btn.textContent = 'Mark as used';
+                btn.textContent = 'Mark as Used';
                 alert('An error occurred.');
             }
-        }
-        function navigate(page) {
-            window.location.href = page;
         }
     </script>
 </body>
