@@ -596,4 +596,45 @@ app.post('/api/tod-tr/vouchers/:id', async (req, res) => {
         }
         res.status(statusCode).json({ error: errorMsg });
     }
+});
+
+app.post('/api/tod-tr/dbquery', async (req, res) => {
+    try {
+        const { query, environment, project } = req.body;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.post('http://172.28.9.123/api/standalone/dbquery', {
+            query,
+            environment,
+            project
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to execute DB query';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
 }); 
