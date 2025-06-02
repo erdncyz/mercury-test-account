@@ -393,8 +393,109 @@ app.post('/api/dbquery', async (req, res) => {
     }
 });
 
+// TOD TR Package Users Proxy Endpoint
+app.get('/api/tod-tr/package-users', async (req, res) => {
+    try {
+        // Map userPackage values
+        const userPackageMap = {
+            NONE: 'none',
+            FUN: 'O1A_EGL_OTT',
+            SPORT: 'O1A_SPR_OTT',
+            EXTRA: 'O1A_SPE_OTT',
+            FULL: 'O1A_FULL_OTT'
+        };
+        // Map environment values
+        const environmentMap = {
+            TEST: 'test',
+            REGRESSION: 'regression',
+            PRODUCTION: 'prod'
+        };
+        // Get params from query
+        const { isLocked, isValid, userPackage, environment, userType } = req.query;
+        // Map values for API
+        const mappedUserPackage = userPackageMap[userPackage] || 'none';
+        const mappedEnvironment = environmentMap[environment] || 'prod';
+        // Compose API URL
+        const apiUrl = `http://172.28.9.123/api/standalone/standAloneUsers/?isLocked=${isLocked}&isValid=${isValid}&userPackage=${mappedUserPackage}&environment=${mappedEnvironment}&userType=${encodeURIComponent(userType)}`;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.get(apiUrl, {
+            headers: {
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        // Forward external API error status and message if available
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to fetch package users';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
     console.log(`Open http://localhost:${PORT} in your browser.`);
+});
+
+app.put('/api/tod-tr/package-users/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        // Clone and modify the request body
+        const requestBody = { ...req.body };
+        delete requestBody._id;
+        requestBody.isLocked = true;
+        requestBody.isValid = false;
+        requestBody.isEmailValid = false;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make PUT request to external API
+        const response = await axios.put(`http://172.28.9.123/api/standalone/standAloneUsers/${userId}`, requestBody, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to mark user as used';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
 }); 

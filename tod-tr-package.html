@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOD TR Package User Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
+            color: #1e293b;
+            padding-top: 60px;
+        }
+        .navbar {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .back-btn:hover {
+            background-color: #2563eb;
+        }
+        .logout-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+        .logout-btn:hover {
+            background-color: #dc2626;
+        }
+        .main-content {
+            min-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 0;
+        }
+        .big-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 48px 32px 48px 32px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .big-card-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #15192c;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        select, .main-content input[type="text"] {
+            padding: 10px 15px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #fff;
+            margin-bottom: 0;
+        }
+        select:focus, .main-content input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        .main-content button.search-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .main-content button.search-btn:hover {
+            background-color: #0056b3;
+        }
+        #error {
+            color: #dc3545;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            border-radius: 4px;
+            display: none;
+        }
+        #error:not(:empty) {
+            display: block;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            display: none;
+            overflow-x: auto;
+            color: #333;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f2f5;
+            font-weight: 600;
+        }
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+            .nav-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .button-group {
+                gap: 0.5rem;
+            }
+            .navbar button {
+                padding: 0.5rem;
+            }
+            body {
+                padding-top: 120px;
+            }
+            .big-card {
+                padding: 16px 2px;
+            }
+            .big-card-title {
+                font-size: 1.3rem;
+                margin-bottom: 18px;
+            }
+        }
+        .used-button {
+            padding: 10px 15px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            color: white;
+        }
+        .used-button.green {
+            background-color: #28a745;
+        }
+        .used-button.green:hover:not(:disabled) {
+            background-color: #218838;
+        }
+        .used-button.red {
+            background-color: #dc3545;
+        }
+        .used-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">☿</span>
+                <span>Mercury Test Account</span>
+            </a>
+            <div class="button-group">
+                <button class="back-btn" onclick="window.location.href='tod-tr.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="big-card">
+            <div class="big-card-title">TOD TR Package User Search</div>
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="userPackage">User Package</label>
+                    <select id="userPackage" required>
+                        <option value="NONE">NONE</option>
+                        <option value="FUN">FUN</option>
+                        <option value="SPORT">SPORT</option>
+                        <option value="EXTRA">EXTRA</option>
+                        <option value="FULL">FULL</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="environment">Environment</label>
+                    <select id="environment" required>
+                        <option value="TEST">TEST</option>
+                        <option value="REGRESSION">REGRESSION</option>
+                        <option value="PRODUCTION">PRODUCTION</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userType">User Type</label>
+                    <select id="userType" required>
+                        <option value="Quick Register Setup">Quick Register Setup</option>
+                        <option value="Standart Register Setup">Standard Register Setup</option>
+                        <option value="non-user">non-user</option>
+                    </select>
+                </div>
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+            <div id="error"></div>
+            <div id="results"></div>
+        </div>
+    </main>
+    <script>
+        const logout = () => {
+            const sessionId = localStorage.getItem('sessionId');
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'x-session-id': sessionId
+                }
+            })
+            .then(() => {
+                localStorage.removeItem('sessionId');
+                window.location.href = 'index.html';
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        };
+
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const userPackage = document.getElementById('userPackage').value;
+            const environment = document.getElementById('environment').value;
+            const userType = document.getElementById('userType').value;
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = '';
+            try {
+                const token = localStorage.getItem('x-auth-token') || '';
+                const params = new URLSearchParams({
+                    userPackage,
+                    environment,
+                    userType,
+                    isLocked: 'false',
+                    isValid: 'true'
+                });
+                const response = await fetch(`/api/tod-tr/package-users?${params.toString()}`, {
+                    headers: {
+                        'x-auth-token': token
+                    }
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'An error occurred.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                if (data && typeof data === 'object' && data.error === 'The user with the given criteria was not found.') {
+                    errorDiv.textContent = data.error;
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                if (!data || (Array.isArray(data) && data.length === 0)) {
+                    resultsDiv.innerHTML = '<em>No records found.</em>';
+                    resultsDiv.style.display = 'block';
+                    return;
+                }
+                // Dikey gösterim
+                let html = '';
+                const renderVertical = (obj, idx) => {
+                    let out = '';
+                    // Mark as used button first
+                    out += `<button class="used-button green" id="usedBtn${idx}" onclick="markAsUsed(${idx})">Mark as used</button>`;
+                    out += '<table>';
+                    for (const key in obj) {
+                        out += `<tr><th>${key}</th><td>${obj[key]}</td></tr>`;
+                    }
+                    out += '</table>';
+                    return out;
+                };
+                // Sonuçları ve kullanıcıları sakla
+                window.todTrUsers = Array.isArray(data) ? data : [data];
+                if (Array.isArray(data)) {
+                    html = data.map((obj, idx) => renderVertical(obj, idx)).join('<hr style="margin:16px 0;">');
+                } else {
+                    html = renderVertical(data, 0);
+                }
+                resultsDiv.innerHTML = html;
+                resultsDiv.style.display = 'block';
+                errorDiv.textContent = '';
+                errorDiv.style.display = 'none';
+            } catch (err) {
+                errorDiv.textContent = 'An error occurred.';
+                errorDiv.style.display = 'block';
+            }
+        });
+        async function markAsUsed(idx) {
+            const user = window.todTrUsers[idx];
+            if (!user || !user._id) return;
+            const btn = document.getElementById('usedBtn' + idx);
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            try {
+                const response = await fetch(`/api/tod-tr/package-users/${user._id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(user)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    btn.classList.remove('green');
+                    btn.classList.add('red');
+                    btn.textContent = 'Mark as used';
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Mark as used';
+                    alert(data.error || 'An error occurred.');
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Mark as used';
+                alert('An error occurred.');
+            }
+        }
+        function navigate(page) {
+            window.location.href = page;
+        }
+    </script>
+</body>
+</html> 
