@@ -12,7 +12,7 @@ The Mercury Test Account Management System is a web application designed to mana
 ## Setup Instructions
 1. **Clone the Repository**: 
    ```bash
-   git clone <repository-url>
+   git clone 'https://github.com/erdncyz/mercury-test-account.git'
    cd mercury-test-account
    ```
 
