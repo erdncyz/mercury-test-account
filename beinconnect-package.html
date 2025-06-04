@@ -387,7 +387,10 @@
             e.preventDefault();
             const frekans = document.getElementById('frekans').value;
             let userPackage = document.getElementById('userPackage').value;
-            const environment = document.getElementById('environment').value;
+            let environment = document.getElementById('environment').value;
+            // Ortamı küçük harfe çevir ve prod için özel case
+            if (environment.toLowerCase() === 'production') environment = 'prod';
+            else environment = environment.toLowerCase();
             const userType = document.getElementById('userType').value;
             const errorDiv = document.getElementById('error');
             const resultsDiv = document.getElementById('results');

@@ -222,14 +222,15 @@
                 <div class="form-group">
                     <label for="queryType">Query Type</label>
                     <select id="queryType" required onchange="handleQueryTypeChange()">
-                        <option value="normal">Normal Query</option>
+                        <option value="normal">Get Verify Code Dbs Number</option>
                         <option value="forget_password">Forget Password Query</option>
                         <option value="verify_email">Email Verification Query</option>
+                        <option value="satellite_code">Get Satelite Code</option>
                     </select>
                 </div>
                 <div class="form-group" id="phoneNumberGroup">
-                    <label for="phoneNumber">Phone Number</label>
-                    <input type="text" id="phoneNumber" placeholder="5XXXXXXXXX">
+                    <label for="dbsNumber">DBS Number</label>
+                    <input type="text" id="dbsNumber" placeholder="Enter DBS Number">
                 </div>
                 <div class="form-group" id="emailGroup" style="display: none;">
                     <label for="email">Email Address</label>
@@ -269,7 +270,7 @@
             const queryType = document.getElementById('queryType').value;
             const phoneNumberGroup = document.getElementById('phoneNumberGroup');
             const emailGroup = document.getElementById('emailGroup');
-            const phoneNumberInput = document.getElementById('phoneNumber');
+            const phoneNumberInput = document.getElementById('dbsNumber');
             const emailInput = document.getElementById('email');
 
             if (queryType === 'verify_email') {
@@ -277,11 +278,20 @@
                 emailGroup.style.display = 'block';
                 phoneNumberInput.removeAttribute('required');
                 emailInput.setAttribute('required', '');
+            } else if (queryType === 'satellite_code') {
+                phoneNumberGroup.style.display = 'block';
+                emailGroup.style.display = 'none';
+                phoneNumberInput.setAttribute('required', '');
+                emailInput.removeAttribute('required');
+                document.querySelector('label[for="dbsNumber"]').textContent = 'Phone Number';
+                document.getElementById('dbsNumber').placeholder = '5XXXXXXXXX';
             } else {
                 phoneNumberGroup.style.display = 'block';
                 emailGroup.style.display = 'none';
                 phoneNumberInput.setAttribute('required', '');
                 emailInput.removeAttribute('required');
+                document.querySelector('label[for="dbsNumber"]').textContent = 'DBS Number';
+                document.getElementById('dbsNumber').placeholder = 'Enter DBS Number';
             }
         }
 
@@ -305,19 +315,31 @@
                     return;
                 }
                 query = `SELECT UC.VERIFICATION_KEY AS code, UC.CREDENTIAL_HASH_VALUE AS VALUE FROM DT_LOGIN_DBA.USER_CREDENTIAL UC WHERE UC.CREDENTIAL_VALUE = '${email}' AND UC.VERIFICATION_KEY IS NOT NULL AND ROWNUM = 1 ORDER BY UC.CREATION_DATE ASC`;
-            } else {
-                const phoneNumber = document.getElementById('phoneNumber').value.trim();
-                if (!/^\d{10}$/.test(phoneNumber)) {
-                    errorDiv.textContent = 'Please enter a valid 10-digit phone number (5XXXXXXXXX).';
+            } else if (queryType === 'forget_password') {
+                const dbsNumber = document.getElementById('dbsNumber').value.trim();
+                if (!dbsNumber) {
+                    errorDiv.textContent = 'Please enter a valid DBS number.';
                     errorDiv.style.display = 'block';
                     return;
                 }
-                if (queryType === 'forget_password') {
-                    query = `SELECT TO_CHAR(SUBSTR(REQUEST_CONTENT,INSTR(REQUEST_CONTENT, 'ile şifre')-7,6)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST D WHERE D.CREATION_DATE > SYSDATE - 10 / 86400 AND REQUEST_CONTENT LIKE '%${phoneNumber}%' AND API_REQUEST_ID = '-1' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
-                } else {
-                    const modifiedPhoneNumber = phoneNumber.substring(3);
-                    query = `SELECT TO_CHAR(SUBSTR(REQUEST_CONTENT,INSTR(REQUEST_CONTENT, 'onay kodu ile')-5,4)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST D WHERE D.CREATION_DATE > SYSDATE-1 AND REQUEST_CONTENT LIKE '%${modifiedPhoneNumber}%' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
+                query = `SELECT TO_CHAR(SUBSTR(REQUEST_CONTENT,INSTR(REQUEST_CONTENT, 'ile şifre')-7,6)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST D WHERE D.CREATION_DATE > SYSDATE - 10 / 86400 AND REQUEST_CONTENT LIKE '%${dbsNumber}%' AND API_REQUEST_ID = '-1' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
+            } else if (queryType === 'satellite_code') {
+                const phoneNumber = document.getElementById('dbsNumber').value.trim();
+                if (!phoneNumber) {
+                    errorDiv.textContent = 'Please enter a valid phone number.';
+                    errorDiv.style.display = 'block';
+                    return;
                 }
+                query = `SELECT TO_CHAR (SUBSTR (REQUEST_CONTENT,INSTR (REQUEST_CONTENT, 'Onay kodunuz: ') + 14,4)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST  D WHERE D.CREATION_DATE > SYSDATE-1/48 AND REQUEST_CONTENT LIKE '%${phoneNumber}%' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
+            } else {
+                // Normal Query: get_verify_code_with_dbs_number
+                const dbsNumber = document.getElementById('dbsNumber').value.trim();
+                if (!dbsNumber) {
+                    errorDiv.textContent = 'Please enter a valid DBS number.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                query = `SELECT VERIFICATION_KEY FROM(SELECT BV.VERIFICATION_KEY FROM DT_PARTY_DBA.PARTY_ROLE_ACCOUNT PRA,  DT_BI_DBA.BI_VERIFICATION BV WHERE PRA.DBS_ACCOUNT_NUMBER ='%${dbsNumber}%' AND PRA.PARTY_ROLE_ID = BV.PARTY_ROLE_ID AND BV.STATU = 'AKTIF' ORDER BY BV.CREATION_DATE DESC) S WHERE ROWNUM = 1`;
             }
 
             try {
