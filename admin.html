@@ -246,6 +246,59 @@
             cursor: not-allowed;
         }
 
+        .edit-btn {
+            min-width: 140px;
+            padding: 10px 0;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            box-shadow: 0 1px 2px rgba(59,130,246,0.08);
+            margin-left: 0.5em;
+            margin-top: 0.3em;
+            display: inline-block;
+            text-align: center;
+        }
+        .edit-projects-btn {
+            background: #3b82f6;
+            color: #fff;
+        }
+        .edit-projects-btn:hover {
+            background: #2563eb;
+        }
+        .edit-environments-btn {
+            background: #10b981;
+            color: #fff;
+        }
+        .edit-environments-btn:hover {
+            background: #059669;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e0e7ef;
+            color: #2563eb;
+            border-radius: 9999px;
+            padding: 0.25em 0.9em;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-right: 0.3em;
+            margin-bottom: 0.2em;
+        }
+        .badge-env {
+            background: #d1fae5;
+            color: #059669;
+        }
+        .badge-project {
+            background: #e0e7ef;
+            color: #2563eb;
+        }
+        .edit-projects-btn, .edit-environments-btn {
+            margin-left: 0.5em;
+            margin-top: 0.3em;
+        }
+
         @media (max-width: 640px) {
             .navbar {
                 padding: 1rem;
@@ -267,6 +320,23 @@
             th, td {
                 padding: 0.75rem;
             }
+        }
+
+        @media (max-width: 900px) {
+            th, td { padding: 0.5rem; }
+            .main-content { padding: 0 0.2rem; }
+        }
+
+        @media (max-width: 640px) {
+            .table-container { border-radius: 0; box-shadow: none; }
+            table { font-size: 0.85em; }
+            .header-card { padding: 1rem; }
+        }
+
+        /* Modal improvements */
+        #projectModal > div, #envModal > div {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            border: 1px solid #e5e7eb;
         }
     </style>
 </head>
@@ -312,6 +382,8 @@
                         <th>Email</th>
                         <th>Type</th>
                         <th>Status</th>
+                        <th>Projects</th>
+                        <th>Environments</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -321,6 +393,32 @@
             </table>
         </div>
     </main>
+
+    <div id="projectModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:white;padding:2rem;border-radius:12px;min-width:320px;max-width:90vw;">
+            <h2 style="margin-top:0;">Edit Projects: <span id="modalUsername"></span></h2>
+            <form id="projectForm">
+                <div id="projectCheckboxes" style="margin-bottom:1rem;"></div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeProjectModal()">Cancel</button>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="envModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:white;padding:2rem;border-radius:12px;min-width:320px;max-width:90vw;">
+            <h2 style="margin-top:0;">Edit Environments: <span id="envModalUsername"></span></h2>
+            <form id="envForm">
+                <div id="envCheckboxes" style="margin-bottom:1rem;"></div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" onclick="closeEnvModal()">Cancel</button>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         const fetchUsers = async () => {
@@ -370,6 +468,15 @@
 
             users.forEach(user => {
                 const row = tableBody.insertRow();
+                // Capitalize project names for display
+                const projectNames = (user.projects || []).map(p => {
+                  const found = ALL_PROJECTS.find(ap => ap.key === p);
+                  return found ? found.title : p;
+                });
+                const projectsAttr = encodeURIComponent(JSON.stringify(user.projects || []));
+                // Capitalize environments for display
+                const envNames = (user.environments || []).map(e => e.charAt(0).toUpperCase() + e.slice(1).toLowerCase());
+                const envsAttr = encodeURIComponent(JSON.stringify(user.environments || []));
                 row.innerHTML = `
                     <td>${user.username}</td>
                     <td>${user.email || '-'}</td>
@@ -378,6 +485,16 @@
                         <span class="status-badge ${user.approved ? 'status-approved' : 'status-pending'}">
                             ${user.approved ? 'Approved' : 'Pending'}
                         </span>
+                    </td>
+                    <td style="vertical-align:middle;">
+                        ${user.type === 'admin' ? '-' : `<span>${projectNames.map(p => `<span class='badge badge-project'>${p}</span>`).join('')}</span>`}
+                        ${user.type !== 'admin' && currentUser && currentUser.type === 'admin' ?
+                            `<button class="edit-btn edit-projects-btn" data-username="${user.username}" data-projects="${projectsAttr}">Edit Projects</button>` : ''}
+                    </td>
+                    <td style="vertical-align:middle;">
+                        ${user.type === 'admin' ? '-' : `<span>${envNames.map(e => `<span class='badge badge-env'>${e}</span>`).join('')}</span>`}
+                        ${user.type !== 'admin' && currentUser && currentUser.type === 'admin' ?
+                            `<button class="edit-btn edit-environments-btn" data-username="${user.username}" data-envs="${envsAttr}">Edit Environments</button>` : ''}
                     </td>
                     <td>
                         <div class="action-buttons">
@@ -398,6 +515,28 @@
                         </div>
                     </td>
                 `;
+            });
+            // Add event listeners for Edit Projects buttons
+            document.querySelectorAll('.edit-projects-btn').forEach(btn => {
+                btn.onclick = function() {
+                    const username = btn.getAttribute('data-username');
+                    let projects = [];
+                    try {
+                        projects = JSON.parse(decodeURIComponent(btn.getAttribute('data-projects')));
+                    } catch (e) {}
+                    openProjectModal(username, projects);
+                };
+            });
+            // Add event listeners for Edit Environments buttons
+            document.querySelectorAll('.edit-environments-btn').forEach(btn => {
+                btn.onclick = function() {
+                    const username = btn.getAttribute('data-username');
+                    let envs = [];
+                    try {
+                        envs = JSON.parse(decodeURIComponent(btn.getAttribute('data-envs')));
+                    } catch (e) {}
+                    openEnvModal(username, envs);
+                };
             });
         };
 
@@ -560,6 +699,117 @@
                     messageArea.style.color = '#dc2626'; // Red text
                     messageArea.textContent = `Failed to revoke login access: ${data.message}`;
                 }
+            }
+        };
+
+        const ALL_PROJECTS = [
+          { key: 'apac', title: 'APAC' },
+          { key: 'tod-tr', title: 'TOD TR' },
+          { key: 'tod-mena', title: 'TOD MENA' },
+          { key: 'beinconnect', title: 'BeIN Connect' }
+        ];
+        let editingUsername = null;
+        function openProjectModal(username, currentProjects) {
+            editingUsername = username;
+            document.getElementById('modalUsername').textContent = username;
+            const container = document.getElementById('projectCheckboxes');
+            container.innerHTML = '';
+            ALL_PROJECTS.forEach(proj => {
+                const checked = currentProjects && currentProjects.includes(proj.key) ? 'checked' : '';
+                container.innerHTML += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' name='project' value='${proj.key}' ${checked}> ${proj.title}</label>`;
+            });
+            document.getElementById('projectModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeProjectModal() {
+            document.getElementById('projectModal').style.display = 'none';
+            editingUsername = null;
+            document.body.style.overflow = '';
+            // Reset modal content for next open
+            document.getElementById('modalUsername').textContent = '';
+            document.getElementById('projectCheckboxes').innerHTML = '';
+        }
+        document.getElementById('projectForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const sessionId = localStorage.getItem('sessionId');
+            if (!sessionId || !editingUsername) return;
+            const checked = Array.from(document.querySelectorAll('#projectCheckboxes input[type=checkbox]:checked')).map(cb => cb.value);
+            const messageArea = document.getElementById('adminMessageArea');
+            messageArea.style.display = 'none';
+            messageArea.textContent = '';
+            const resp = await fetch(`/admin/set-projects/${editingUsername}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-session-id': sessionId
+                },
+                body: JSON.stringify({ projects: checked })
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                messageArea.style.display = 'block';
+                messageArea.style.backgroundColor = '#dcfce7';
+                messageArea.style.color = '#16a34a';
+                messageArea.textContent = data.message;
+                closeProjectModal();
+                fetchUsers();
+            } else {
+                messageArea.style.display = 'block';
+                messageArea.style.backgroundColor = '#fee2e2';
+                messageArea.style.color = '#dc2626';
+                messageArea.textContent = data.message || 'Failed to update projects.';
+            }
+        };
+
+        // Environment modal logic
+        function openEnvModal(username, currentEnvs) {
+            editingUsername = username;
+            document.getElementById('envModalUsername').textContent = username;
+            const container = document.getElementById('envCheckboxes');
+            container.innerHTML = '';
+            ['TEST','REGRESSION','PRODUCTION'].forEach(env => {
+                const checked = currentEnvs && currentEnvs.includes(env) ? 'checked' : '';
+                container.innerHTML += `<label style='display:block;margin-bottom:6px;'><input type='checkbox' name='env' value='${env}' ${checked}> ${env}</label>`;
+            });
+            document.getElementById('envModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeEnvModal() {
+            document.getElementById('envModal').style.display = 'none';
+            editingUsername = null;
+            document.body.style.overflow = '';
+            document.getElementById('envModalUsername').textContent = '';
+            document.getElementById('envCheckboxes').innerHTML = '';
+        }
+        document.getElementById('envForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const sessionId = localStorage.getItem('sessionId');
+            if (!sessionId || !editingUsername) return;
+            const checked = Array.from(document.querySelectorAll('#envCheckboxes input[type=checkbox]:checked')).map(cb => cb.value);
+            const messageArea = document.getElementById('adminMessageArea');
+            messageArea.style.display = 'none';
+            messageArea.textContent = '';
+            const resp = await fetch(`/admin/set-environments/${editingUsername}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-session-id': sessionId
+                },
+                body: JSON.stringify({ environments: checked })
+            });
+            const data = await resp.json();
+            if (resp.ok) {
+                messageArea.style.display = 'block';
+                messageArea.style.backgroundColor = '#dcfce7';
+                messageArea.style.color = '#16a34a';
+                messageArea.textContent = data.message;
+                closeEnvModal();
+                fetchUsers();
+            } else {
+                messageArea.style.display = 'block';
+                messageArea.style.backgroundColor = '#fee2e2';
+                messageArea.style.color = '#dc2626';
+                messageArea.textContent = data.message || 'Failed to update environments.';
             }
         };
 

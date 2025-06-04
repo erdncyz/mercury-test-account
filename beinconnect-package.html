@@ -250,9 +250,7 @@
             <div class="form-group">
                 <label for="environment">Environment</label>
                 <select id="environment" required>
-                    <option value="test">TEST</option>
-                    <option value="regression">REGRESSION</option>
-                    <option value="prod">PRODUCTION</option>
+                    <!-- Options will be populated dynamically -->
                 </select>
             </div>
             <div class="form-group">
@@ -315,7 +313,40 @@
                 userPackageSelect.appendChild(option);
             });
         }
-        document.addEventListener('DOMContentLoaded', handleFrekansChange);
+        // Populate environment dropdown dynamically based on user permissions
+        async function populateEnvironments() {
+            const environmentSelect = document.getElementById('environment');
+            environmentSelect.innerHTML = '<option>Loading...</option>';
+            try {
+                const sessionId = localStorage.getItem('sessionId');
+                const response = await fetch('/check-auth', {
+                    headers: {
+                        'x-session-id': sessionId
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to fetch user permissions');
+                const data = await response.json();
+                const envs = data.allowedEnvironments || data.environments || [];
+                environmentSelect.innerHTML = '';
+                if (envs.length === 0) {
+                    environmentSelect.innerHTML = '<option disabled>No environments</option>';
+                } else {
+                    envs.forEach(env => {
+                        const opt = document.createElement('option');
+                        opt.value = env;
+                        opt.textContent = env;
+                        environmentSelect.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                environmentSelect.innerHTML = '<option disabled>Error loading</option>';
+            }
+        }
+        // Call on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            populateEnvironments();
+            handleFrekansChange();
+        });
         window.beinconnectUsers = [];
         async function markAsUsed(idx) {
             const user = window.beinconnectUsers[idx];

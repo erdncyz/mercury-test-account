@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
 const axios = require('axios');
+const os = require('os');
 
 const app = express();
 const PORT = 3000;
@@ -12,6 +13,45 @@ const USERS_FILE = path.join(__dirname, 'users.json');
 app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
+
+// Redirect extensionful URLs to extensionless (e.g. /dashboard.html -> /dashboard)
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    const exts = ['.html', '.htm', '.json', '.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.ico'];
+    for (const ext of exts) {
+      if (req.path.endsWith(ext)) {
+        const base = req.path.slice(0, -ext.length);
+        // Only redirect if the extensionless version does not have an extension and is not root
+        if (base && !base.includes('.') && base !== '/') {
+          // Check if the file actually exists
+          const filePath = path.join(__dirname, req.path);
+          if (fs.existsSync(filePath)) {
+            return res.redirect(301, base);
+          }
+        }
+      }
+    }
+  }
+  next();
+});
+
+// Gelişmiş Clean URL middleware: /dashboard -> /dashboard.html, /apac -> /apac.html, /logo -> /logo.svg, vs.
+app.use((req, res, next) => {
+  if (
+    req.method === 'GET' &&
+    !req.path.includes('.') && // no extension
+    req.path !== '/' // not root
+  ) {
+    const exts = ['.html', '.htm', '.json', '.js', '.css', '.png', '.jpg', '.jpeg', '.svg', '.ico'];
+    for (const ext of exts) {
+      const filePath = path.join(__dirname, req.path + ext);
+      if (fs.existsSync(filePath)) {
+        return res.sendFile(filePath);
+      }
+    }
+  }
+  next();
+});
 
 // Simple session management (in-memory)
 const sessions = new Map();
@@ -110,7 +150,22 @@ app.post('/login', (req, res) => {
 
 // Check authentication endpoint
 app.get('/check-auth', checkSession, (req, res) => {
-    res.json(req.user);
+    const users = readUsers();
+    const user = users.find(u => u.username === req.user.username);
+    let projects = [];
+    let type = req.user.type;
+    let environments = [];
+    if (user) {
+        if (user.type === 'admin') {
+            projects = ['apac', 'tod-tr', 'tod-mena', 'beinconnect'];
+            environments = ['TEST', 'REGRESSION', 'PRODUCTION'];
+        } else {
+            projects = user.projects || [];
+            environments = user.environments || [];
+        }
+        type = user.type;
+    }
+    res.json({ username: req.user.username, type, projects, environments });
 });
 
 // Logout endpoint
@@ -465,9 +520,24 @@ app.get('/api/tod-tr/package-users', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Open http://localhost:${PORT} in your browser.`);
+function getLocalExternalIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
+const publicIp = getLocalExternalIp();
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on:`);
+  console.log(`- Local:   http://localhost:${PORT}`);
+  console.log(`- Network: http://${publicIp}:${PORT}`);
 });
 
 app.put('/api/tod-tr/package-users/:id', async (req, res) => {
@@ -940,4 +1010,44 @@ app.put('/api/beinconnect/package-users/mark-used/:id', async (req, res) => {
         }
         res.status(statusCode).json({ error: errorMsg });
     }
+});
+
+// Kullanıcıya proje yetkisi güncelleme (sadece admin)
+app.post('/admin/set-projects/:username', checkSession, (req, res) => {
+    if (req.user.type !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+    const { username } = req.params;
+    const { projects } = req.body; // ör: ["apac", "tod-tr"]
+    if (!Array.isArray(projects)) {
+        return res.status(400).json({ message: 'Projects must be an array.' });
+    }
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.username === username);
+    if (userIndex === -1) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+    users[userIndex].projects = projects;
+    writeUsers(users);
+    res.json({ message: 'Projects updated.' });
+});
+
+// Kullanıcıya environment yetkisi güncelleme (sadece admin)
+app.post('/admin/set-environments/:username', checkSession, (req, res) => {
+    if (req.user.type !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+    const { username } = req.params;
+    const { environments } = req.body; // ör: ["TEST", "REGRESSION"]
+    if (!Array.isArray(environments)) {
+        return res.status(400).json({ message: 'Environments must be an array.' });
+    }
+    const users = readUsers();
+    const userIndex = users.findIndex(u => u.username === username);
+    if (userIndex === -1) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+    users[userIndex].environments = environments;
+    writeUsers(users);
+    res.json({ message: 'Environments updated.' });
 }); 

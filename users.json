@@ -4,5 +4,21 @@
     "password": "adminpassword",
     "type": "admin",
     "approved": true
+  },
+  {
+    "username": "test",
+    "password": "test",
+    "email": "test@test.com",
+    "type": "user",
+    "approved": true,
+    "projects": [
+      "apac",
+      "tod-tr",
+      "tod-mena",
+      "beinconnect"
+    ],
+    "environments": [
+      "REGRESSION"
+    ]
   }
 ]

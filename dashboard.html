@@ -249,33 +249,38 @@
             </div>
         </div>
 
-        <div class="projects-grid">
-            <a href="apac.html" class="project-card">
-                <div class="project-icon">🌏</div>
-                <h2 class="project-title">APAC</h2>
-            </a>
-            <a href="tod-tr.html" class="project-card">
-                <div class="project-icon">🇹🇷</div>
-                <h2 class="project-title">TOD TR</h2>
-            </a>
-            <a href="tod-mena.html" class="project-card">
-                <div class="project-icon">🌍</div>
-                <h2 class="project-title">TOD MENA</h2>
-            </a>
-            <a href="beinconnect.html" class="project-card">
-                <div class="project-icon">📺</div>
-                <h2 class="project-title">BeIN Connect</h2>
-            </a>
-        </div>
+        <div class="projects-grid"></div>
     </main>
 
     <script>
+        const ALL_PROJECTS = [
+          { key: 'apac', title: 'APAC', icon: '🌏', href: 'apac' },
+          { key: 'tod-tr', title: 'TOD TR', icon: '🇹🇷', href: 'tod-tr' },
+          { key: 'tod-mena', title: 'TOD MENA', icon: '🌍', href: 'tod-mena' },
+          { key: 'beinconnect', title: 'BeIN Connect', icon: '📺', href: 'beinconnect' }
+        ];
+
+        function renderProjects(projectKeys) {
+          const grid = document.querySelector('.projects-grid');
+          grid.innerHTML = '';
+          ALL_PROJECTS.forEach(proj => {
+            if (projectKeys.includes(proj.key)) {
+              grid.innerHTML += `
+                <a href="${proj.href}" class="project-card">
+                  <div class="project-icon">${proj.icon}</div>
+                  <h2 class="project-title">${proj.title}</h2>
+                </a>
+              `;
+            }
+          });
+        }
+
         // Check if user is logged in
         const checkAuth = async () => {
             try {
                 const sessionId = localStorage.getItem('sessionId');
                 if (!sessionId) {
-                    window.location.href = 'index.html';
+                    window.location.href = 'index';
                     return;
                 }
 
@@ -288,20 +293,22 @@
                 
                 if (!response.ok) {
                     localStorage.removeItem('sessionId');
-                    window.location.href = 'index.html';
+                    window.location.href = 'index';
                     return;
                 }
 
                 document.getElementById('username').textContent = data.username;
                 document.getElementById('accountType').textContent = data.type.charAt(0).toUpperCase() + data.type.slice(1);
-                
-                // Show admin button only for admin users
+                // Sadece admin ise admin panel butonunu göster
                 if (data.type === 'admin') {
-                    document.getElementById('adminBtn').style.display = 'flex';
+                  document.getElementById('adminBtn').style.display = 'flex';
+                } else {
+                  document.getElementById('adminBtn').style.display = 'none';
                 }
+                renderProjects(data.projects || []);
             } catch (error) {
                 localStorage.removeItem('sessionId');
-                window.location.href = 'index.html';
+                window.location.href = 'index';
             }
         };
 
@@ -316,7 +323,7 @@
             })
             .then(() => {
                 localStorage.removeItem('sessionId');
-                window.location.href = 'index.html';
+                window.location.href = 'index';
             })
             .catch(error => {
                 console.error('Logout failed:', error);
@@ -325,7 +332,7 @@
 
         // Admin panel button click handler
         document.getElementById('adminBtn').addEventListener('click', () => {
-            window.location.href = 'admin.html';
+            window.location.href = 'admin';
         });
 
         // Check authentication when page loads
