@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeIN Connect - Mercury</title>
+    <title>BeinConnect</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
@@ -11,14 +11,13 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            background-color: #f4f7f6;
             min-height: 100vh;
             color: #1e293b;
+            padding-top: 60px;
         }
-
         .navbar {
             background-color: white;
             padding: 1rem 2rem;
@@ -29,7 +28,6 @@
             right: 0;
             z-index: 100;
         }
-
         .nav-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -37,7 +35,6 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .logo {
             font-size: 1.5rem;
             font-weight: 600;
@@ -47,16 +44,13 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .logo-icon {
             font-size: 1.8rem;
         }
-
         .button-group {
             display: flex;
             gap: 1rem;
         }
-
         button {
             padding: 0.5rem 1rem;
             border: none;
@@ -69,111 +63,108 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .back-btn {
             background-color: #3b82f6;
             color: white;
         }
-
         .back-btn:hover {
             background-color: #2563eb;
         }
-
         .logout-btn {
             background-color: #ef4444;
             color: white;
         }
-
         .logout-btn:hover {
             background-color: #dc2626;
         }
-
         .main-content {
-            max-width: 1200px;
-            margin: 6rem auto 2rem;
-            padding: 0 2rem;
+            min-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 0;
         }
-
-        .header-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
+        .big-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 48px 32px 48px 32px;
+            max-width: 1400px;
+            width: 90vw;
+            margin: 0 auto;
         }
-
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 0.5rem;
+        .big-card-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #15192c;
+            margin-bottom: 32px;
+            text-align: left;
         }
-
-        .header-subtext {
-            color: #64748b;
-            font-size: 1rem;
+        .card-container {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
         }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
+        .card {
+            background-color: #fff;
+            border-radius: 16px;
+            padding: 48px 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+            width: 320px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        .content-card {
-            background-color: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        .card:hover {
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
         }
-
-        .card-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 1rem;
+        .card div {
+            font-size: 2.5rem;
+            margin-bottom: 18px;
         }
-
-        .metric-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+        .card p {
+            font-size: 1.35rem;
+            color: #181c2a;
+            font-weight: 700;
+            margin: 0;
         }
-
-        .metric-item {
-            padding: 1rem;
-            background-color: #f8fafc;
-            border-radius: 8px;
+        @media (max-width: 1100px) {
+            .card-container {
+                flex-direction: column;
+                gap: 24px;
+                align-items: center;
+            }
+            .big-card {
+                padding: 32px 8px;
+            }
         }
-
-        .metric-label {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 0.25rem;
-        }
-
-        .metric-value {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #0f172a;
-        }
-
         @media (max-width: 640px) {
             .navbar {
                 padding: 1rem;
             }
-
-            .main-content {
-                padding: 0 1rem;
-                margin-top: 5rem;
+            .nav-content {
+                flex-direction: column;
+                gap: 0.5rem;
             }
-
             .button-group {
                 gap: 0.5rem;
             }
-
-            button {
+            .navbar button {
                 padding: 0.5rem;
+            }
+            body {
+                padding-top: 120px;
+            }
+            .big-card {
+                padding: 16px 2px;
+            }
+            .big-card-title {
+                font-size: 1.3rem;
+                margin-bottom: 18px;
             }
         }
     </style>
@@ -186,11 +177,11 @@
                 <span>Mercury Test Account</span>
             </a>
             <div class="button-group">
-                <button class="back-btn" onclick="window.location.href='dashboard.html'">
+                <button class="back-btn" onclick="window.location.href='index.html'">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
-                    Back to Dashboard
+                    Back
                 </button>
                 <button class="logout-btn" onclick="logout()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -203,13 +194,21 @@
             </div>
         </div>
     </nav>
-
     <main class="main-content">
-        <div class="header-card">
-            <h1 class="header-title">BeIN Connect</h1>
+        <div class="big-card">
+            <div class="big-card-title">BeinConnect</div>
+            <div class="card-container">
+                <div class="card" onclick="navigate('beinconnect-dbquery.html')">
+                    <div>🔍</div>
+                    <p>DB Query</p>
+                </div>
+                <div class="card" onclick="navigate('beinconnect-package.html')">
+                    <div>🏷️</div>
+                    <p>Package</p>
+                </div>
+            </div>
         </div>
     </main>
-
     <script>
         const logout = () => {
             const sessionId = localStorage.getItem('sessionId');
@@ -227,6 +226,9 @@
                 console.error('Logout failed:', error);
             });
         };
+        function navigate(page) {
+            window.location.href = page;
+        }
     </script>
 </body>
 </html> 

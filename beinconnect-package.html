@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeinConnect Package</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            padding-top: 60px;
+            color: #333;
+        }
+        .navbar {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .back-btn:hover {
+            background-color: #2563eb;
+        }
+        .logout-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+        .logout-btn:hover {
+            background-color: #dc2626;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 20px auto;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        select, input {
+            padding: 10px 15px;
+            width: 100%;
+            margin-bottom: 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            appearance: none;
+            background-color: #fff;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2C114.7L159.1%2C2.8c-8.7-8.7-22.9-8.7-31.7%2C0L5.4%2C114.7c-8.7%2C8.7-8.7%2C22.9%2C0%2C31.7l15.6%2C15.6c4.3%2C4.3%2C11.3%2C4.3%2C15.6%2C0l110.3-110.3l110.3%2C110.3c4.3%2C4.3%2C11.3%2C4.3%2C15.6%2C0l15.6-15.6C295.7%2C137.6%2C295.7%2C123.4%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+            padding-right: 30px;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        .container button.search-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .container button.search-btn:hover {
+            background-color: #0056b3;
+        }
+        #error {
+            color: #dc3545;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            border-radius: 4px;
+            display: none;
+        }
+        #error:not(:empty) {
+            display: block;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            display: none;
+            overflow-x: auto;
+            color: #333;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+        }
+        #results pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .used-button {
+            padding: 10px 15px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            color: white;
+        }
+        .used-button.green {
+            background-color: #28a745;
+        }
+        .used-button.green:hover:not(:disabled) {
+            background-color: #218838;
+        }
+        .used-button.red {
+            background-color: #dc3545;
+        }
+        .used-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+            .nav-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .button-group {
+                gap: 0.5rem;
+            }
+            .navbar button {
+                padding: 0.5rem;
+            }
+            body {
+                padding-top: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">☿</span>
+                <span>Mercury Test Account</span>
+            </a>
+            <div class="button-group">
+                <button class="back-btn" onclick="window.location.href='beinconnect.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>BeinConnect Package User Search</h1>
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="frekans">Frekans</label>
+                <select id="frekans" required onchange="handleFrekansChange()">
+                    <option value="F01-ST-PH">EUTELSAT</option>
+                    <option value="F01-ST-LG">TURKSAT</option>
+                    <option value="F01-PH">FRAUD</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="userPackage">User Package</label>
+                <select id="userPackage" required></select>
+            </div>
+            <div class="form-group">
+                <label for="environment">Environment</label>
+                <select id="environment" required>
+                    <option value="test">TEST</option>
+                    <option value="regression">REGRESSION</option>
+                    <option value="prod">PRODUCTION</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="userType">User Type</label>
+                <select id="userType" required>
+                    <option value="non-user">non-user</option>
+                    <option value="DONDURULMUS">DONDURULMUS</option>
+                    <option value="ASKIYA_ALINMIS">ASKIYA_ALINMIS</option>
+                    <option value="OMEGA">OMEGA</option>
+                    <option value="DON_COZ">DON_COZ</option>
+                    <option value="SUS_COZ">SUS_COZ</option>
+                    <option value="EYK_COZ">EYK_COZ</option>
+                    <option value="FESIH">FESIH</option>
+                    <option value="IQ_FRAUD">IQ_FRAUD</option>
+                </select>
+            </div>
+            <button type="submit" class="search-btn">Search</button>
+        </form>
+        <div id="error"></div>
+        <div id="results"></div>
+    </div>
+    <script>
+        const logout = () => {
+            const sessionId = localStorage.getItem('sessionId');
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'x-session-id': sessionId
+                }
+            })
+            .then(() => {
+                localStorage.removeItem('sessionId');
+                window.location.href = 'index.html';
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        };
+        const userPackageOptions = {
+            'F01-ST-PH': [
+                { label: 'FAMILY STAR', value: 'YAY_SRV' },
+                { label: 'FULL STAR', value: 'YYD_SRV' }
+            ],
+            'F01-ST-LG': [
+                { label: 'FAMILY STAR', value: 'TAY_SRV' },
+                { label: 'FULL STAR', value: 'TYD_SRV' }
+            ],
+            'F01-PH': [
+                { label: 'NULL', value: 'null' }
+            ]
+        };
+        function handleFrekansChange() {
+            const frekans = document.getElementById('frekans').value;
+            const userPackageSelect = document.getElementById('userPackage');
+            userPackageSelect.innerHTML = '';
+            userPackageOptions[frekans].forEach(opt => {
+                const option = document.createElement('option');
+                option.value = opt.value;
+                option.textContent = opt.label;
+                userPackageSelect.appendChild(option);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', handleFrekansChange);
+        window.beinconnectUsers = [];
+        async function markAsUsed(idx) {
+            const user = window.beinconnectUsers[idx];
+            if (!user || (!user._id && !user.userId)) return;
+            const btn = document.getElementById('usedBtn' + idx);
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+            const userId = user._id || user.userId;
+            const body = { ...user };
+            delete body._id;
+            body.isLocked = true;
+            body.isValid = false;
+            try {
+                const response = await fetch(`/api/beinconnect/package-users/mark-used/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    btn.classList.remove('green');
+                    btn.classList.add('red');
+                    btn.textContent = 'Mark as Used';
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = 'Mark as Used';
+                    alert(data.error || 'An error occurred.');
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.textContent = 'Mark as Used';
+                alert('An error occurred.');
+            }
+        }
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const frekans = document.getElementById('frekans').value;
+            let userPackage = document.getElementById('userPackage').value;
+            const environment = document.getElementById('environment').value;
+            const userType = document.getElementById('userType').value;
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = '';
+            try {
+                const response = await fetch('/api/beinconnect/package-users-satellite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        frekans,
+                        userPackage,
+                        environment,
+                        userType
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'An error occurred.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                const users = Array.isArray(data) ? data : [data];
+                if (!users || users.length === 0) {
+                    errorDiv.textContent = 'No users found.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                window.beinconnectUsers = users;
+                let html = '';
+                if (Array.isArray(users)) {
+                    html = users.map((obj, idx) => renderVertical(obj, idx)).join('<hr style="margin:16px 0;">');
+                } else {
+                    html = renderVertical(users, 0);
+                }
+                resultsDiv.innerHTML = html;
+                resultsDiv.style.display = 'block';
+            } catch (err) {
+                errorDiv.textContent = 'An error occurred.';
+                errorDiv.style.display = 'block';
+            }
+        });
+        function renderVertical(user, idx) {
+            let out = '';
+            out += `<button class="used-button green" id="usedBtn${idx}" onclick="markAsUsed(${idx})">Mark as Used</button>`;
+            out += '<table>';
+            for (const key in user) {
+                out += `<tr><th>${key}</th><td>${user[key]}</td></tr>`;
+            }
+            out += '</table>';
+            return out;
+        }
+    </script>
+</body>
+</html> 

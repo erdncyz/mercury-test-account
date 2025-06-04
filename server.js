@@ -637,4 +637,307 @@ app.post('/api/tod-tr/dbquery', async (req, res) => {
         }
         res.status(statusCode).json({ error: errorMsg });
     }
+});
+
+// BeinConnect DB Query endpoint
+app.post('/api/beinconnect/dbquery', async (req, res) => {
+    try {
+        const { query, environment, project } = req.body;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.post('http://172.28.9.123/api/standalone/dbquery', {
+            query,
+            environment,
+            project
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to execute DB query';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
+// BeinConnect Package Users endpoint
+app.post('/api/beinconnect/package-users', async (req, res) => {
+    try {
+        const { userPackage, environment, userType, isLocked, isValid } = req.body;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.post('http://172.28.9.123/api/standalone/package-users', {
+            userPackage,
+            environment,
+            userType,
+            isLocked,
+            isValid
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to fetch package users';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
+// BeinConnect Package Users Mark Used endpoint
+app.put('/api/beinconnect/package-users/mark-used', async (req, res) => {
+    try {
+        const { userPackage, environment, userType, isLocked, isValid } = req.body;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.put('http://172.28.9.123/api/standalone/package-users/mark-used', {
+            userPackage,
+            environment,
+            userType,
+            isLocked,
+            isValid
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to mark package user as used';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
+// BeinConnect Vouchers endpoint
+app.post('/api/beinconnect/vouchers', async (req, res) => {
+    try {
+        const { environment, offerType, countryCode } = req.body;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.post('http://172.28.9.123/api/standalone/vouchers', {
+            environment,
+            offerType,
+            countryCode
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to fetch vouchers';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
+// BeinConnect Vouchers Mark Used endpoint
+app.post('/api/beinconnect/vouchers/mark-used', async (req, res) => {
+    try {
+        const { environment, offerType, countryCode } = req.body;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.post('http://172.28.9.123/api/standalone/vouchers/mark-used', {
+            environment,
+            offerType,
+            countryCode
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to mark voucher as used';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
+// BeinConnect Package Users Satellite endpoint
+app.post('/api/beinconnect/package-users-satellite', async (req, res) => {
+    try {
+        const { environment, frekans, userPackage, userType } = req.body;
+        // Map environment
+        const environmentMap = {
+            test: 'test',
+            regression: 'regression',
+            prod: 'prod',
+            production: 'prod'
+        };
+        const apiEnvironment = environmentMap[environment] || environment;
+        // Compose API URL
+        const apiUrl = `http://172.28.9.123/api/standalone/standAloneUsers/?isLocked=false&isValid=true&userPackage=${userPackage}&environment=${apiEnvironment}&frekans=${frekans}&userType=${userType}`;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make request
+        const response = await axios.get(apiUrl, {
+            headers: {
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to fetch BeinConnect package users (satellite)';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
+});
+
+// BeinConnect Package Users Mark Used by ID endpoint
+app.put('/api/beinconnect/package-users/mark-used/:id', async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const body = { ...req.body };
+        delete body._id;
+        body.isLocked = true;
+        body.isValid = false;
+        // Fetch token as in /api/token
+        const tokenResponse = await axios.post('http://172.28.9.123/api/auth', {
+            email: "admin@digiturk.com.tr",
+            password: "adminPassQA"
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const token = tokenResponse.data.token;
+        // Make PUT request to external API
+        const response = await axios.put(`http://172.28.9.123/api/standalone/standAloneUsers/${userId}`, body, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-auth-token': token
+            }
+        });
+        res.json(response.data);
+    } catch (error) {
+        const statusCode = error.response && error.response.status ? error.response.status : 500;
+        let errorMsg = 'Failed to mark user as used';
+        if (error.response && error.response.data) {
+            if (typeof error.response.data === 'string') {
+                errorMsg = error.response.data;
+            } else if (error.response.data.error) {
+                errorMsg = error.response.data.error;
+            } else if (error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+        }
+        res.status(statusCode).json({ error: errorMsg });
+    }
 }); 

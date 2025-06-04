@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeinConnect DB Query</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
+            color: #1e293b;
+            padding-top: 60px;
+        }
+        .navbar {
+            background-color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+        button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-btn {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .back-btn:hover {
+            background-color: #2563eb;
+        }
+        .logout-btn {
+            background-color: #ef4444;
+            color: white;
+        }
+        .logout-btn:hover {
+            background-color: #dc2626;
+        }
+        .main-content {
+            min-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 0;
+        }
+        .big-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+            padding: 48px 32px 48px 32px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .big-card-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #15192c;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, select {
+            padding: 10px 15px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: #fff;
+            margin-bottom: 0;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+        }
+        .main-content button.search-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            padding: 10px 15px;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .main-content button.search-btn:hover {
+            background-color: #0056b3;
+        }
+        #error {
+            color: #dc3545;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            border-radius: 4px;
+            display: none;
+        }
+        #error:not(:empty) {
+            display: block;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            display: none;
+            overflow-x: auto;
+            color: #333;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        @media (max-width: 640px) {
+            .navbar {
+                padding: 1rem;
+            }
+            .nav-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .button-group {
+                gap: 0.5rem;
+            }
+            .navbar button {
+                padding: 0.5rem;
+            }
+            body {
+                padding-top: 120px;
+            }
+            .big-card {
+                padding: 16px 2px;
+            }
+            .big-card-title {
+                font-size: 1.3rem;
+                margin-bottom: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">
+                <span class="logo-icon">☿</span>
+                <span>Mercury Test Account</span>
+            </a>
+            <div class="button-group">
+                <button class="back-btn" onclick="window.location.href='beinconnect.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Back
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+    <main class="main-content">
+        <div class="big-card">
+            <div class="big-card-title">BeinConnect DB Query</div>
+            <form id="dbQueryForm">
+                <div class="form-group">
+                    <label for="queryType">Query Type</label>
+                    <select id="queryType" required onchange="handleQueryTypeChange()">
+                        <option value="normal">Normal Query</option>
+                        <option value="forget_password">Forget Password Query</option>
+                        <option value="verify_email">Email Verification Query</option>
+                    </select>
+                </div>
+                <div class="form-group" id="phoneNumberGroup">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="text" id="phoneNumber" placeholder="5XXXXXXXXX">
+                </div>
+                <div class="form-group" id="emailGroup" style="display: none;">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="example@domain.com">
+                </div>
+                <div class="form-group">
+                    <label for="environment">Environment</label>
+                    <select id="environment" required>
+                        <option value="test">TEST</option>
+                        <option value="regression">REGRESSION</option>
+                        <option value="prod">PRODUCTION</option>
+                    </select>
+                </div>
+                <button type="submit" class="search-btn">Query</button>
+            </form>
+            <div id="error"></div>
+            <div id="results"></div>
+        </div>
+    </main>
+    <script>
+        const logout = () => {
+            const sessionId = localStorage.getItem('sessionId');
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'x-session-id': sessionId
+                }
+            })
+            .then(() => {
+                localStorage.removeItem('sessionId');
+                window.location.href = 'index.html';
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
+        };
+
+        function handleQueryTypeChange() {
+            const queryType = document.getElementById('queryType').value;
+            const phoneNumberGroup = document.getElementById('phoneNumberGroup');
+            const emailGroup = document.getElementById('emailGroup');
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const emailInput = document.getElementById('email');
+
+            if (queryType === 'verify_email') {
+                phoneNumberGroup.style.display = 'none';
+                emailGroup.style.display = 'block';
+                phoneNumberInput.removeAttribute('required');
+                emailInput.setAttribute('required', '');
+            } else {
+                phoneNumberGroup.style.display = 'block';
+                emailGroup.style.display = 'none';
+                phoneNumberInput.setAttribute('required', '');
+                emailInput.removeAttribute('required');
+            }
+        }
+
+        document.getElementById('dbQueryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const queryType = document.getElementById('queryType').value;
+            const environment = document.getElementById('environment').value;
+            const errorDiv = document.getElementById('error');
+            const resultsDiv = document.getElementById('results');
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = '';
+
+            let query;
+            if (queryType === 'verify_email') {
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                    errorDiv.textContent = 'Please enter a valid email address.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                query = `SELECT UC.VERIFICATION_KEY AS code, UC.CREDENTIAL_HASH_VALUE AS VALUE FROM DT_LOGIN_DBA.USER_CREDENTIAL UC WHERE UC.CREDENTIAL_VALUE = '${email}' AND UC.VERIFICATION_KEY IS NOT NULL AND ROWNUM = 1 ORDER BY UC.CREATION_DATE ASC`;
+            } else {
+                const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                if (!/^\d{10}$/.test(phoneNumber)) {
+                    errorDiv.textContent = 'Please enter a valid 10-digit phone number (5XXXXXXXXX).';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                if (queryType === 'forget_password') {
+                    query = `SELECT TO_CHAR(SUBSTR(REQUEST_CONTENT,INSTR(REQUEST_CONTENT, 'ile şifre')-7,6)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST D WHERE D.CREATION_DATE > SYSDATE - 10 / 86400 AND REQUEST_CONTENT LIKE '%${phoneNumber}%' AND API_REQUEST_ID = '-1' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
+                } else {
+                    const modifiedPhoneNumber = phoneNumber.substring(3);
+                    query = `SELECT TO_CHAR(SUBSTR(REQUEST_CONTENT,INSTR(REQUEST_CONTENT, 'onay kodu ile')-5,4)) AS CODE FROM DT_POSTOFFICE_DBA.API_CALL_LOG_REQUEST D WHERE D.CREATION_DATE > SYSDATE-1 AND REQUEST_CONTENT LIKE '%${modifiedPhoneNumber}%' AND ROWNUM < 2 ORDER BY D.CREATION_DATE DESC`;
+                }
+            }
+
+            try {
+                const response = await fetch('/api/beinconnect/dbquery', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query,
+                        environment,
+                        project: 'beinconnect'
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'An error occurred.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                resultsDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                resultsDiv.style.display = 'block';
+            } catch (err) {
+                errorDiv.textContent = 'An error occurred.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html> 
